@@ -99,7 +99,7 @@ body{
   height: 100vh;
   align-items: center;
   background: url("../assets/img/background.jpg");
-  backdrop-filter: grayscale(0.5) opacity(0.9);        
+  backdrop-filter: grayscale(0.1) opacity(0.4);        
   background-size: cover;
   background-position: -115px;
   overflow: hidden;
@@ -201,6 +201,24 @@ display: none;
   border-radius: 20px;
   padding: 10px;
   box-sizing: border-box;
+    font-family: Linear, "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  backdrop-filter: blur(24px) saturate(1.4);
+  background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 10, 0.9);
+  border-radius: 16px;
+  box-shadow: rgba(255, 255, 255, 0.08) 0px 0px 0px 1px;
+  inset-inline: 0px;
+  isolation: isolate;
+/*       margin-inline: 235.6px;
+*/      max-width: 1500px;
+margin: 0px auto;
+  transform: matrix(1, 0, 0, 1, 0, 0);
+  width: 90%;
+  z-index: 100;
+  color: rgb(255, 255, 255);
+  text-size-adjust: 100%;
 }
 
 
