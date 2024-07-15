@@ -1,0 +1,48 @@
+body{
+    background-color: #48402C!important;
+}
+
+.upgrade-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 50px;
+    width: 95%;
+    border-radius: 20px;
+    background: linear-gradient(180.00deg, rgb(51 51 51) 0%, rgba(51, 51, 51, 0.7) 100%);
+}
+.upgrade-box {
+    display: flex;
+    padding: 5px;
+    gap: 15px;
+    align-items: center;
+}
+.upgrade-icon-box {
+    background: rgba(210, 210, 210, 0.8);
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.upgrade-icon {
+    width: 30px;
+    height: 30px;
+}
+.upgrade-info {
+    display: flex;
+    flex-direction: column;
+}
+.upgrade-name-bottom{
+    display: flex;
+    gap: 5px;
+}
+.upgrade-name {
+}
+.upgrade-price {
+    flex-basis: 175px;
+    text-align: end;
+}
+

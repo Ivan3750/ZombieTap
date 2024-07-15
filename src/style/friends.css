@@ -1,0 +1,90 @@
+.friends-amount-box {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    gap: 10px;
+    z-index: 7;
+}
+.friends-amount {
+    color: rgb(255, 255, 255);
+font-family: Arimo;
+font-size: 60px;
+font-weight: 700;
+line-height: 69px;
+letter-spacing: 0px;
+text-align: left;
+}
+.friends-text {
+    color: rgba(245, 245, 245, 1);
+font-family: Arimo;
+font-size: 35px;
+font-weight: 900;
+line-height: 40px;
+letter-spacing: 0px;
+text-align: left;
+}
+.friends-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 50px;
+    width: 95%;
+    border-radius: 20px;
+    background: linear-gradient(180.00deg, rgb(51 51 51) 0%, rgba(51, 51, 51, 0.7) 100%);
+}
+.friends-box {
+    display: flex;
+    padding: 5px;
+    gap: 15px;
+    align-items: center;
+}
+.friends-icon-box {
+    background: rgba(210, 210, 210, 0.8);
+    border-radius: 50%;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.friends-icon {
+    width: 30px;
+    height: 30px;
+}
+.friends-info {
+    display: flex;
+    flex-direction: column;
+}
+.friends-name-bottom{
+    display: flex;
+    gap: 5px;
+}
+.friends-name {
+    color: rgb(255, 255, 255);
+font-family: Arimo;
+font-size: 16px;
+font-weight: 700;
+line-height: 23px;
+letter-spacing: 0px;
+text-align: center;
+}
+.friends-price {
+    flex-basis: 175px;
+    text-align: end;
+}
+
+.invite-btn{
+margin: 20px 0px;
+    color: rgb(255, 255, 255);
+font-family: Arimo;
+font-size: 20px;
+font-weight: 700;
+line-height: 23px;
+letter-spacing: 0px;
+text-align: center;
+    border-radius: 20px;
+background: rgb(255, 96, 69);
+width: 300px;
+height: 40px;
+}
