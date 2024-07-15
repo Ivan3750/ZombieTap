@@ -1,3 +1,42 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dino Game</title>
+  <link rel="stylesheet" href="../style/game.css">
+</head>
+<body>
+  <style>
+    
+body {
+    background-color: #f0f0f0;
+    padding: 0;
+    margin: 0;
+  }
+  .container{
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #game-canvas {
+    width: 100%;
+    height: 100vh;
+/*     background-size: cover;
+    background-image: url(../assets/img/BackgroundGame.png); */
+  }
+  </style>
+  <div class="container">
+    <canvas id="game-canvas"></canvas>
+  </div>
+  <script>
 // Canvas and context
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -6,16 +45,14 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+console.log(canvas)
 // Canvas dimensions
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 
-// Ground position
-const groundY = (canvasHeight / 2) + 150;
-
 // Dino
 let dinoX = 50;
-let dinoY = groundY - 450; // Adjusted for dino height
+let dinoY = canvasHeight - dinoHeight - 60; // Adjusted for dino height
 let dinoWidth = 300;
 let dinoHeight = 300;
 let dinoSpeedY = 0;
@@ -31,6 +68,8 @@ let obstacleSpeed = 3;
 
 // Score
 let score = 0;
+
+let canvasLine = canvasHeight - 960;
 
 // Load dino running images
 const dinoRunImages = [];
@@ -50,11 +89,7 @@ for (let i = 1; i <= 15; i++) {
 
 // Load background image
 const backgroundImage = new Image();
-backgroundImage.src = '../assets/img/BackgroundGameOut.png'; // Adjust to the actual path of the background image
-
-// Load ground image
-const groundImage = new Image();
-groundImage.src = '../assets/img/land.png'; // Adjust to the actual path of the ground image
+backgroundImage.src = '../assets/img/BackgroundGame.png'; // Adjust to the actual path of the background image
 
 // Function to ensure all images are loaded
 function loadImages(images, callback) {
@@ -74,29 +109,47 @@ let currentFrame = 0;
 const frameSpeed = 5; // Adjust speed of animation (lower value for faster animation)
 let frameCount = 0;
 
-// Ground animation parameters
-let groundX = 0;
-const groundSpeed = 2; // Adjust the speed of the ground scroll
+// Background animation parameters
+let backgroundX = 0;
+const backgroundSpeed = 2; // Adjust the speed of the background scroll
 
 // Function to draw background image
 function drawBackground() {
-    ctx.drawImage(backgroundImage, 0, 0, canvasWidth, canvasHeight);
-}
+    // Calculate aspect ratio of the background image
+    const bgAspectRatio = backgroundImage.width / backgroundImage.height;
+    const canvasAspectRatio = canvasWidth / canvasHeight;
 
-// Function to draw ground image
-function drawGround() {
-    const groundWidth = groundImage.width;
-    const groundHeight = groundImage.height;
+    let bgWidth, bgHeight;
 
-    // Adjust groundX to create scrolling effect
-    groundX -= groundSpeed;
-    if (groundX <= -groundWidth) {
-        groundX = 0;
+    if (canvasAspectRatio > bgAspectRatio) {
+        // Canvas is wider relative to its height
+        bgWidth = canvasWidth;
+        bgHeight = canvasWidth / bgAspectRatio;
+    } else {
+        // Canvas is taller relative to its width
+        bgWidth = canvasHeight * bgAspectRatio;
+        bgHeight = canvasHeight;
     }
 
-    // Draw two ground images side by side for seamless scrolling
-    ctx.drawImage(groundImage, groundX, groundY - groundHeight, groundWidth, groundHeight);
-    ctx.drawImage(groundImage, groundX + groundWidth, groundY - groundHeight, groundWidth, groundHeight);
+    // Adjust backgroundX to create scrolling effect
+    backgroundX -= backgroundSpeed;
+    if (backgroundX <= -bgWidth) {
+        backgroundX = 0;
+    }
+
+    // Draw two background images side by side for seamless scrolling
+    ctx.drawImage(backgroundImage, backgroundX, 0, bgWidth, bgHeight);
+    ctx.drawImage(backgroundImage, backgroundX + bgWidth, 0, bgWidth, bgHeight);
+}
+
+// Function to draw ground line
+function drawGround() {
+    ctx.strokeStyle = 'green';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(0, canvasHeight - 60);
+    ctx.lineTo(canvasWidth, canvasHeight - 60);
+    ctx.stroke();
 }
 
 // Function to draw dino
@@ -115,7 +168,7 @@ function drawDino() {
 function drawObstacles() {
     obstacles.forEach((obstacle) => {
         ctx.fillStyle = 'red';
-        ctx.fillRect(obstacle.x, groundY - obstacleHeight -170, obstacleWidth, obstacleHeight);
+        ctx.fillRect(obstacle.x, obstacle.y, obstacleWidth, obstacleHeight);
     });
 }
 
@@ -125,8 +178,8 @@ function update() {
     if (isJumping) {
         dinoSpeedY += gravity;
         dinoY += dinoSpeedY;
-        if (dinoY >= groundY - dinoHeight -150) {
-            dinoY = groundY - dinoHeight -150;
+        if (dinoY >= canvasHeight - dinoHeight - 60) {
+            dinoY = canvasHeight - dinoHeight - 60;
             isJumping = false;
         }
     }
@@ -138,7 +191,8 @@ function update() {
 
     // Check collision with obstacles
     obstacles.forEach((obstacle) => {
-        if (checkCollision(dinoX, dinoY, obstacle.x, groundY - obstacleHeight)) {
+        if (checkCollision(dinoX, dinoY, obstacle.x, obstacle.y)) {
+            alert('Game Over!');
             resetGame();
         }
     });
@@ -154,7 +208,7 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     drawBackground(); // Draw background image
-    drawGround(); // Draw ground image
+    drawGround(); // Draw ground line
     drawDino();
     drawObstacles();
     ctx.font = '24px Arial';
@@ -175,7 +229,7 @@ function checkCollision(x1, y1, x2, y2) {
 // Function to reset the game
 function resetGame() {
     dinoX = 50;
-    dinoY = groundY - dinoHeight;
+    dinoY = canvasHeight - dinoHeight - 60;
     dinoSpeedY = 0;
     obstacles = [];
     score = 0;
@@ -199,11 +253,15 @@ document.addEventListener('keydown', (event) => {
 setInterval(() => {
     obstacles.push({
         x: canvasWidth,
-        y: groundY - obstacleHeight,
+        y: canvasHeight - obstacleHeight - 60,
     });
 }, 2000);
 
 // Start game loop after images are loaded
-loadImages([...dinoRunImages, ...dinoJumpImages, backgroundImage, groundImage], () => {
+loadImages([...dinoRunImages, ...dinoJumpImages, backgroundImage], () => {
     setInterval(gameLoop, 1000 / 60);
 });
+  </script>
+  </div>
+</body>
+</html>
