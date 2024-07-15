@@ -191,8 +191,10 @@ function gameLoop() {
 
 
 window.addEventListener("click", ()=>{
-    dinoSpeedY = jumpPower;
-        isJumping = true;
+    if(!isJumping){
+        dinoSpeedY = jumpPower;
+            isJumping = true;
+    }
 })
 
 document.addEventListener('keydown', (event) => {
