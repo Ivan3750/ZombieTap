@@ -188,6 +188,13 @@ function gameLoop() {
 }
 
 // Add event listener for key press
+
+
+window.addEventListener("click", ()=>{
+    dinoSpeedY = jumpPower;
+        isJumping = true;
+})
+
 document.addEventListener('keydown', (event) => {
     if ((event.key === 'ArrowUp' || event.key === ' ') && !isJumping) {
         dinoSpeedY = jumpPower;
