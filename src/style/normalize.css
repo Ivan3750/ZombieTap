@@ -2,12 +2,20 @@
 
 
 * {
+  user-select: none;
   padding: 0;
   margin: 0;
   border: 0;
   text-decoration: none;
-  font-family: "Arimo", "Unbounded", "Open Sans";
+  font-family: "Arimo";
   color: #ffffff;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 :focus,
@@ -61,8 +69,8 @@ h4,
 h5,
 h6,
 p {
-  font-family: "Open Sans";
-  font-size: inherit;
+  font-family: "Arimo";
+    font-size: inherit;
   font-weight: 400;
 }
 
@@ -76,11 +84,11 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: 100svh;
   align-items: center;
   background: url("../assets/img/background.jpg") no-repeat center/cover;
-  backdrop-filter: grayscale(0.1) opacity(0.4);
-  overflow: hidden;
+/*   backdrop-filter: grayscale(0.1) opacity(0.4);
+ */  overflow: hidden;
   position: relative;
 }
 
@@ -99,19 +107,20 @@ main {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
+  justify-content: space-between;
+    align-items: center;
   gap: 20px;
   box-sizing: border-box;
   height: 100%;
 }
 
 .main {
-  gap: 30px;
+
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
 }
 
@@ -153,16 +162,26 @@ main {
   justify-content: space-between;
   align-items: center;
   height: 70px;
-  width: 90%;
-  max-width: 1500px;
+  width: 100%;
   margin: 0 auto;
   padding: 10px;
   border-radius: 16px;
-  background-color: rgba(10, 10, 10, 0.9);
-  backdrop-filter: blur(24px) saturate(1.4);
-  box-shadow: rgba(255, 255, 255, 0.08) 0px 0px 0px 1px;
+  /* backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  background: linear-gradient(145deg, #4A4A4A, #363636);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 100;
+  color: #FFFFFF; */ /* Білий текст для контрасту */
+
+
+  box-sizing: border-box;
+gap: normal;
+color: rgb(255, 255, 255);
+text-size-adjust: 100%;
+background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 10, 0.6);
 }
+
+
 
 .coin {
   width: 50px;
@@ -173,8 +192,39 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  width: 50px;
+  height: 55px;
+  
+
+
+  box-sizing: border-box;
+  vertical-align: baseline;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  text-decoration: none solid rgb(255, 255, 255);
+  outline: rgb(255, 255, 255) none 0px;
+  align-items: center;
+  appearance: none;
+  background: none 0% 0% / auto repeat scroll padding-box border-box rgb(35, 35, 35);
+  display: flex;
+  flex-shrink: 0;
+  font-kerning: auto;
+  font-optical-sizing: auto;
+  font-stretch: 100%;
+  font-variant: normal;
+  font-variation-settings: normal;
   justify-content: center;
-  gap: 4px;
+  max-width: 100%;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  border-radius: 15px;
+  transition-property: border, background-color, color, box-shadow, opacity, filter, transform;
+  box-shadow: rgba(0, 0, 0, 0.11) 0px -1px 1px 0px inset, rgba(0, 0, 0, 0) 0px 8px 2px 0px, rgba(0, 0, 0, 0.01) 0px 5px 2px 0px, rgba(0, 0, 0, 0.04) 0px 3px 2px 0px, rgba(0, 0, 0, 0.07) 0px 1px 1px 0px, rgba(0, 0, 0, 0.08) 0px 0px 1px 0px;
+  filter: none;
+  list-style: outside none none;
+  text-size-adjust: 100%;
 }
 
 .tab-icon {
@@ -183,8 +233,8 @@ main {
 }
 
 .tab-name {
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .play-btn {
@@ -197,4 +247,10 @@ main {
   line-height: 23px;
   text-align: center;
   color: rgb(255, 255, 255);
+}
+
+
+.coin-icon{
+  width: 25px;
+  height: 25px;
 }
