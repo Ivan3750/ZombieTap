@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style/index.css' %}">
+    <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
+    <title>Main</title>
+</head>
+<body>
+  <main>
+    <div class="main">
+      <div class="score">
+        <img class="coin" src="{% static 'assets/icons/coin.png' %}" alt="">
+        <p>{{ zb_coin }}</p>
+      </div>
+      <div class="rank">777,777th</div>
+      <img class="avatar" src="https://static.vecteezy.com/system/resources/previews/036/029/663/original/ai-generated-zombie-cartoon-character-isolated-on-transparent-background-png.png" alt="Avatar">
+      <div class="name">John Park</div>
+      <button class="play-btn">Play</button>
+    </div>
+    <div class="controls">
+      <a href="http://127.0.0.1:8000/boost/">
+        <div class="tab">
+          <img src="{% static 'assets/icons/rocket_6437747.png' %}" alt="" class="tab-icon">
+          <p class="tab-name">Boosts</p>
+        </div>
+      </a> 
+      <a href="http://127.0.0.1:8000/task/">
+      <div class="tab">
+        <img src="{% static 'assets/icons/check-list_4630883.png ' %}" alt="" class="tab-icon">
+        <p class="tab-name">Task</p>
+      </div>
+      </a>
+      <a href="http://127.0.0.1:8000">
+      <div class="tab">
+        <img src="{% static 'assets/icons/house_10723211.png' %}" alt="" class="tab-icon">
+        <p class="tab-name">Home</p>
+      </div>
+      </a>
+      <a href="http://127.0.0.1:8000/skins/">
+      <div class="tab">
+        <img src="{% static 'assets/icons/hangar_10580180.png' %}" alt="" class="tab-icon">
+        <p class="tab-name">Skins</p>
+      </div>
+      </a>
+      <a href="http://127.0.0.1:8000/friends/">
+      <div class="tab">
+        <img src="{% static 'assets/icons/users_149066.png' %}" alt="" class="tab-icon">
+        <p class="tab-name">Friends</p>
+      </div>
+      </a>
+    </div>
+  </main>
+    
+
+</body>
+</html>
