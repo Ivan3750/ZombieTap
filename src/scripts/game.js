@@ -26,8 +26,9 @@ let isAttacking = false;
 
 // Obstacles
 let obstacles = [];
-let obstacleWidth = 150; // Adjust based on obstacle image dimensions
-let obstacleHeight = 154.9; // Adjust based on obstacle image dimensions
+/* 272x278 Original */
+let obstacleWidth = 204; // Adjust based on obstacle image dimensions
+let obstacleHeight = 208.5; // Adjust based on obstacle image dimensions
 let initialObstacleSpeed = 6;
 let obstacleSpeed = initialObstacleSpeed; // Initialize with initialObstacleSpeed
 
@@ -70,11 +71,11 @@ for (let i = 1; i <= 8; i++) { // Assuming there are 8 attack images
 
 // Load background image
 const backgroundImage = new Image();
-backgroundImage.src = '../assets/img/BackgroundGameOut.png'; // Adjust to the actual path of the background image
+backgroundImage.src = '../assets/img/BackgroundGameOut.jpg'; // Adjust to the actual path of the background image
 
 // Load ground image
 const groundImage = new Image();
-groundImage.src = '../assets/img/land.png'; // Adjust to the actual path of the ground image
+groundImage.src = '../assets/img/BackgroundGame0.jpeg'; // Adjust to the actual path of the ground image
 
 // Load obstacle images
 const obstacleImages = [];
@@ -84,7 +85,7 @@ obstacleImages.push(obstacleImg);
 
 // Load play button image
 const playButtonImage = new Image();
-playButtonImage.src = `../assets/sprites/playButton.png`; // Adjust to the actual path of the play button image
+playButtonImage.src = `../assets/img/BackgroundGame0.jpeg`; // Adjust to the actual path of the play button image
 
 // Game state
 let gameStarted = false;
@@ -114,7 +115,16 @@ const groundSpeed = 4; // Increased speed of the ground scroll
 
 // Function to draw background
 function drawBackground() {
-    ctx.drawImage(backgroundImage, 0, 0, canvasWidth, canvasHeight);
+    const bgWidth = backgroundImage.width;
+    const bgHeight = backgroundImage.height;
+
+    // Calculate the source and destination dimensions to crop the background image
+    const srcX = 0;
+    const srcY = 0;
+    const srcWidth = Math.min(bgWidth, canvasWidth);
+    const srcHeight = Math.min(bgHeight, canvasHeight);
+
+    ctx.drawImage(backgroundImage, srcX, srcY, srcWidth, srcHeight, 0, 0, canvasWidth, canvasHeight);
 }
 
 // Function to draw ground
@@ -197,52 +207,51 @@ function draw() {
     drawGround(); // Draw ground image
     drawzombie();
     drawObstacles();
-// Створіть об'єкти Image
-const scoreImg = new Image();
-const tokensImg = new Image();
+    // Створіть об'єкти Image
+    const scoreImg = new Image();
+    const tokensImg = new Image();
 
-// Встановіть джерела для зображень
-scoreImg.src = '../assets/icons/rocket.png'; // Змініть шлях до вашого зображення
-tokensImg.src = '../assets/icons/coin.png'; // Змініть шлях до вашого зображення
+    // Встановіть джерела для зображень
+    scoreImg.src = '../assets/icons/rocket.png'; // Змініть шлях до вашого зображення
+    tokensImg.src = '../assets/icons/coin.png'; // Змініть шлях до вашого зображення
 
-// Намалюйте все після завантаження зображень
-scoreImg.onload = () => {
-    tokensImg.onload = () => {
-        // Налаштування шрифтів та кольорів
-        ctx.font = '80px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center'; 
-        ctx.textBaseline = 'middle'; // Вирівнювання тексту по центру зображення
+    // Намалюйте все після завантаження зображень
+    scoreImg.onload = () => {
+        tokensImg.onload = () => {
+            // Налаштування шрифтів та кольорів
+            ctx.font = '80px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'middle'; // Вирівнювання тексту по центру зображення
 
-        // Визначте центр
-        const centerX = canvas.width / 2;
+            // Визначте центр
+            const centerX = canvas.width / 2;
 
-        // Малюйте зображення
-        const imageY = 20; // Вершина першого зображення
-        const imageHeight = 80; // Висота зображення
+            // Малюйте зображення
+            const imageY = 20; // Вершина першого зображення
+            const imageHeight = 80; // Висота зображення
 
-        // Налаштування тіні для тексту
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 3;
-        ctx.shadowBlur = 5;
+            // Налаштування тіні для тексту
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            ctx.shadowBlur = 5;
 
-    
+        
 
-        // Малюйте зображення для score
-        ctx.drawImage(scoreImg, centerX - 140, imageY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-        ctx.fillText(`${Math.floor(score)}`, centerX, imageY + imageHeight / 2); // Текст буде поруч з зображенням
+            // Малюйте зображення для score
+            ctx.drawImage(scoreImg, centerX - 140, imageY, 80, 80); // Зображення буде розміщене ліворуч від тексту
+            ctx.fillText(`${Math.floor(score)}`, centerX, imageY + imageHeight / 2); // Текст буде поруч з зображенням
 
-        // Малюйте зображення для tokens
-        const tokensY = 120; // Вершина другого зображення
-        ctx.drawImage(tokensImg, centerX - 140, tokensY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-        ctx.fillText(`${tokens}`, centerX, tokensY + imageHeight / 2); // Текст буде поруч з зображенням
+            // Малюйте зображення для tokens
+            const tokensY = 120; // Вершина другого зображення
+            ctx.drawImage(tokensImg, centerX - 140, tokensY, 80, 80); // Зображення буде розміщене ліворуч від тексту
+            ctx.fillText(`${tokens}`, centerX, tokensY + imageHeight / 2); // Текст буде поруч з зображенням
 
-        // Прибрати тіні після малювання
-        ctx.shadowColor = 'transparent';
+            // Прибрати тіні після малювання
+            ctx.shadowColor = 'transparent';
+        };
     };
-};
-
 }
 
 // Function to check collision
