@@ -12,6 +12,7 @@ urlpatterns = [
     path('task/', views.task, name="task"),
     path('skins/', views.skins, name="skins"),
     path('task-api-view/', TaskList.as_view(), name='task-api-view'),
+    path('game', views.game, name="game")
 ]
 
 if settings.DEBUG:

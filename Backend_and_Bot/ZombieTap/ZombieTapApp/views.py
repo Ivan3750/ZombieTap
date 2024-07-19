@@ -15,7 +15,7 @@ class TaskList(APIView):
 
 
 def index(request):
-    return render(request, 'pages/index.html', {"zb_coin" : 1})
+    return render(request, 'pages/index.html', {"zb_coin" : 1, "num": range(1, 11)})
 
 def friends(request):
     return render(request, 'pages/friends.html')
@@ -30,6 +30,10 @@ def task(request):
         "tasks": tasks
     }
     return render(request, 'pages/task.html', context)
+
+def game(request):
+    return render(request, 'pages/game.html')
+
 
 def skins(request):
     return HttpResponse("Page Not Created")

@@ -1,26 +1,25 @@
 @import url("https://fonts.googleapis.com/css?family=Arimo:regular,500,600,700,italic,500italic,600italic,700italic");
-@import url(../components/controls/controls.css);
-@import url(../components/header/header.css);
+
+
 * {
-  font-family: "Open Sans";
+  user-select: none;
   padding: 0;
   margin: 0;
   border: 0;
   text-decoration: none;
-  font-family: Unbounded;
-}
-
-* {
+  font-family: "Arimo";
   color: #ffffff;
-  font-family: Arimo;
-
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 :focus,
-:active {
-  outline: none;
-}
-
+:active,
 a:focus,
 a:active {
   outline: none;
@@ -39,7 +38,8 @@ textarea {
   font-family: inherit;
 }
 
-input::-ms-clear {
+input::-ms-clear,
+button::-moz-focus-inner {
   display: none;
 }
 
@@ -48,16 +48,8 @@ button {
   background-color: transparent;
 }
 
-button::-moz-focus-inner {
-  padding: 0;
-  border: 0;
-}
-
 a,
-a:visited {
-  text-decoration: none;
-}
-
+a:visited,
 a:hover {
   text-decoration: none;
 }
@@ -75,160 +67,190 @@ h2,
 h3,
 h4,
 h5,
-h6 {
-  font-size: inherit;
-  font-weight: 400;
-  font-family: "Open Sans"
-}
-
+h6,
 p {
-  font-family: "Open Sans"
+  font-family: "Arimo";
+    font-size: inherit;
+  font-weight: 400;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-
-body{
+body {
   box-sizing: border-box;
-  padding: 10px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100vh;
+  height: 100svh;
   align-items: center;
-  background: url("../assets/img/background.jpg");
-  backdrop-filter: grayscale(0.5) opacity(0.9);        
-  background-size: cover;
-  background-position: -115px;
-  overflow: hidden;
+  background: url("../assets/img/background.jpg") no-repeat center/cover;
+/*   backdrop-filter: grayscale(0.1) opacity(0.4);
+ */  overflow: hidden;
   position: relative;
 }
 
 body::before {
-  display: block;
   content: "";
-  top: 0px;
-  left: 0px;
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 200px;
   width: 100%;
-  position: absolute;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.522) 0%, rgba(0,0,0,0) 100%);
-
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.522) 0%, rgba(0, 0, 0, 0) 100%);
   z-index: 5;
 }
 
-main{
-/*     margin-top: 50px;
-*/    width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-  align-items: center;
-}
-.main{
-  margin-top: 20px;
+main {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+    align-items: center;
+  gap: 20px;
+  box-sizing: border-box;
+  height: 100%;
 }
 
+.main {
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
 
 .score {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  text-align: center;
   gap: 10px;
   position: relative;
   z-index: 7;
 }
-.score p{
-  color: rgb(255, 255, 255);
-  font-family: Arimo;
+
+.score p {
   font-size: 50px;
   font-weight: 800;
   line-height: 69px;
-  letter-spacing: 0px;
-  text-align: left;
   text-shadow: 0px 0px 4px #838383;
-
 }
-.rank {
-  margin-top: 10px;
+
+.rank,
+.name {
   text-align: center;
-  color: rgba(255, 253, 253, 1);
-  font-family: Arimo;
   font-size: 16px;
   font-weight: 600;
   line-height: 18px;
-  letter-spacing: 0px;
-  text-align: left;
   text-shadow: 0px 0px 4px #838383;
   display: none;
-
 }
+
 .avatar {
-  text-align: center;
-  margin-top: 30px;
+  margin: 30px 0 0 50px;
   width: 225px;
 }
-.name {
-  margin-top: 5px;
-  text-align: center;
-  color: rgb(255, 255, 255);
-font-family: Arimo;
-font-size: 20px;
-font-weight: 600;
-line-height: 23px;
-letter-spacing: 0px;
-text-align: left;
-display: none;
-}
-.controls{
+
+.controls {
   display: flex;
   flex-direction: row;
-  height: 70px;
-  width: 95%;
   justify-content: space-between;
-  background-color: rgba(51, 51, 51, 1);
-      
-  border-radius: 20px;
+  align-items: center;
+  height: 70px;
+  width: 100%;
+  margin: 0 auto;
   padding: 10px;
+  border-radius: 16px;
+  /* backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  background: linear-gradient(145deg, #4A4A4A, #363636);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 100;
+  color: #FFFFFF; */ /* Білий текст для контрасту */
+
+
   box-sizing: border-box;
+gap: normal;
+color: rgb(255, 255, 255);
+text-size-adjust: 100%;
+background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 10, 0.6);
 }
 
 
-.coin{
+
+.coin {
   width: 50px;
   height: 50px;
 }
 
-
-
-.tab{
+.tab {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  width: 50px;
+  height: 55px;
+  
+
+
+  box-sizing: border-box;
+  vertical-align: baseline;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  text-decoration: none solid rgb(255, 255, 255);
+  outline: rgb(255, 255, 255) none 0px;
+  align-items: center;
+  appearance: none;
+  background: none 0% 0% / auto repeat scroll padding-box border-box rgb(35, 35, 35);
+  display: flex;
+  flex-shrink: 0;
+  font-kerning: auto;
+  font-optical-sizing: auto;
+  font-stretch: 100%;
+  font-variant: normal;
+  font-variation-settings: normal;
   justify-content: center;
-  gap: 4px;
+  max-width: 100%;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  border-radius: 15px;
+  transition-property: border, background-color, color, box-shadow, opacity, filter, transform;
+  box-shadow: rgba(0, 0, 0, 0.11) 0px -1px 1px 0px inset, rgba(0, 0, 0, 0) 0px 8px 2px 0px, rgba(0, 0, 0, 0.01) 0px 5px 2px 0px, rgba(0, 0, 0, 0.04) 0px 3px 2px 0px, rgba(0, 0, 0, 0.07) 0px 1px 1px 0px, rgba(0, 0, 0, 0.08) 0px 0px 1px 0px;
+  filter: none;
+  list-style: outside none none;
+  text-size-adjust: 100%;
 }
 
-
-.tab-icon{
+.tab-icon {
   width: 22.5px;
   height: 22.5px;
-
 }
 
-.tab-name{
-  font-family: Arimo;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 14px;
+.tab-name {
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.play-btn {
+  width: 250px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgb(255, 96, 69);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+}
+
+
+.coin-icon{
+  width: 25px;
+  height: 25px;
 }

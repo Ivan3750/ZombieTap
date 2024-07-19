@@ -85,6 +85,18 @@ DATABASES = {
     }
 }
 
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# URL для доступу до статичних файлів
+STATIC_URL = '/static/'
+
+# Додаткові директорії зі статичними файлами
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
