@@ -2,7 +2,6 @@
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
-// Resize canvas to fill window
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -26,9 +25,10 @@ let isAttacking = false;
 
 // Obstacles
 let obstacles = [];
-/* 272x278 Original */
-let obstacleWidth = 204; // Adjust based on obstacle image dimensions
-let obstacleHeight = 208.5; // Adjust based on obstacle image dimensions
+const obstacleImages = [];
+const numObstacleImages = 10; // Number of different obstacle images
+const obstacleWidth = 204; // Adjust based on obstacle image dimensions
+const obstacleHeight = 208.5; // Adjust based on obstacle image dimensions
 let initialObstacleSpeed = 6;
 let obstacleSpeed = initialObstacleSpeed; // Initialize with initialObstacleSpeed
 
@@ -71,17 +71,18 @@ for (let i = 1; i <= 8; i++) { // Assuming there are 8 attack images
 
 // Load background image
 const backgroundImage = new Image();
-backgroundImage.src = '../assets/img/BackgroundGameOut.jpg'; // Adjust to the actual path of the background image
+backgroundImage.src = '../assets/img/BackgroundGameOut-1.jpg'; // Adjust to the actual path of the background image
 
 // Load ground image
 const groundImage = new Image();
-groundImage.src = '../assets/img/BackgroundGame0.jpeg'; // Adjust to the actual path of the ground image
+groundImage.src = '../assets/img/Background-1.jpg'; // Adjust to the actual path of the ground image
 
 // Load obstacle images
-const obstacleImages = [];
-const obstacleImg = new Image();
-obstacleImg.src = `../assets/sprites/obstacle.png`; // Adjust to the actual path of the obstacle image
-obstacleImages.push(obstacleImg);
+for (let i = 0; i < numObstacleImages; i++) {
+    const img = new Image();
+    img.src = `../assets/sprites/obs/${i}.png`; // Adjust to the actual path of the obstacle image
+    obstacleImages.push(img);
+}
 
 // Load play button image
 const playButtonImage = new Image();
@@ -144,7 +145,7 @@ function drawGround() {
 }
 
 // Function to draw zombie
-function drawzombie() {
+function drawZombie() {
     frameCount++;
     if (frameCount >= frameSpeed) {
         frameCount = 0;
@@ -158,7 +159,7 @@ function drawzombie() {
 // Function to draw obstacles
 function drawObstacles() {
     obstacles.forEach((obstacle) => {
-        const obstacleImg = obstacleImages[0]; // Use the single obstacle image
+        const obstacleImg = obstacleImages[obstacle.imgIndex]; // Use the obstacle's assigned image
         ctx.drawImage(obstacleImg, obstacle.x, groundY - obstacleHeight - 170, obstacleWidth, obstacleHeight);
     });
 }
@@ -184,7 +185,6 @@ function update() {
     obstacles.forEach((obstacle) => {
         if (checkCollision(zombieX, zombieY, obstacle.x, groundY - obstacleHeight - 170)) {
             resetGame();
-            
         }
     });
 
@@ -205,50 +205,48 @@ function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     drawBackground(); // Draw background image
     drawGround(); // Draw ground image
-    drawzombie();
+    drawZombie();
     drawObstacles();
-    // Створіть об'єкти Image
+    // Create Image objects
     const scoreImg = new Image();
     const tokensImg = new Image();
 
-    // Встановіть джерела для зображень
-    scoreImg.src = '../assets/icons/rocket.png'; // Змініть шлях до вашого зображення
-    tokensImg.src = '../assets/icons/coin.png'; // Змініть шлях до вашого зображення
+    // Set sources for the images
+    scoreImg.src = '../assets/icons/rocket.png'; // Adjust path to your image
+    tokensImg.src = '../assets/icons/coin.png'; // Adjust path to your image
 
-    // Намалюйте все після завантаження зображень
+    // Draw everything after images are loaded
     scoreImg.onload = () => {
         tokensImg.onload = () => {
-            // Налаштування шрифтів та кольорів
+            // Font and color settings
             ctx.font = '80px Arial';
             ctx.fillStyle = 'white';
             ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'middle'; // Вирівнювання тексту по центру зображення
+            ctx.textBaseline = 'middle'; // Align text in the center of the image
 
-            // Визначте центр
+            // Define center
             const centerX = canvas.width / 2;
 
-            // Малюйте зображення
-            const imageY = 20; // Вершина першого зображення
-            const imageHeight = 80; // Висота зображення
+            // Draw images
+            const imageY = 20; // Top of the first image
+            const imageHeight = 80; // Image height
 
-            // Налаштування тіні для тексту
+            // Shadow settings for text
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
             ctx.shadowOffsetX = 3;
             ctx.shadowOffsetY = 3;
             ctx.shadowBlur = 5;
 
-        
+            // Draw image for score
+            ctx.drawImage(scoreImg, centerX - 140, imageY, 80, 80); // Image placed to the left of the text
+            ctx.fillText(`${Math.floor(score)}`, centerX, imageY + imageHeight / 2); // Text placed next to the image
 
-            // Малюйте зображення для score
-            ctx.drawImage(scoreImg, centerX - 140, imageY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-            ctx.fillText(`${Math.floor(score)}`, centerX, imageY + imageHeight / 2); // Текст буде поруч з зображенням
+            // Draw image for tokens
+            const tokensY = 120; // Top of the second image
+            ctx.drawImage(tokensImg, centerX - 140, tokensY, 80, 80); // Image placed to the left of the text
+            ctx.fillText(`${tokens}`, centerX, tokensY + imageHeight / 2); // Text placed next to the image
 
-            // Малюйте зображення для tokens
-            const tokensY = 120; // Вершина другого зображення
-            ctx.drawImage(tokensImg, centerX - 140, tokensY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-            ctx.fillText(`${tokens}`, centerX, tokensY + imageHeight / 2); // Текст буде поруч з зображенням
-
-            // Прибрати тіні після малювання
+            // Remove shadows after drawing
             ctx.shadowColor = 'transparent';
         };
     };
@@ -314,7 +312,7 @@ setInterval(() => {
         obstacles.push({
             x: canvasWidth,
             y: groundY - obstacleHeight,
-            imgIndex: 0 // Use the single obstacle image
+            imgIndex: Math.floor(Math.random() * numObstacleImages) // Assign a random image index
         });
     }
 }, 3000); // Interval remains the same at 3000ms (3 seconds)
@@ -339,14 +337,12 @@ function startGame() {
     setInterval(gameLoop, 1000 / 60);
 }
 
-// Add event listener for play button
 canvas.addEventListener('click', (event) => {
     if (gameIdle) {
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        // Check if play button is clicked
         if (x >= canvasWidth / 2 - 100 && x <= canvasWidth / 2 + 100 &&
             y >= canvasHeight / 2 - 50 && y <= canvasHeight / 2 + 50) {
             startGame();
@@ -354,13 +350,11 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
-// Start idle animation loop
-loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, obstacleImages[0], playButtonImage], () => {
+loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, ...obstacleImages, playButtonImage], () => {
     setInterval(() => {
         if (gameIdle) {
             drawIdleScreen();
         }
     }, 1000 / 60);
 });
-
 startGame();
