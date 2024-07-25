@@ -12,6 +12,8 @@ class StartCommand:
         self.router_start.message.register(self.start_cmd, CommandStart())
         self.router_start.callback_query.register(self.help_callback, F.data == "help")
 
+        self.web_app_url = 'https://immensely-frank-stingray.ngrok-free.app'
+
 
     async def add_user_to_db(message: Message):
         pass
@@ -35,7 +37,8 @@ class StartCommand:
         # await self.add_user_to_db(message=message)
         bot_info = await bot.get_me()
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="Play and Earn", web_app=WebAppInfo(url=f"https://t.me/{bot_info.username}"))],
+            [InlineKeyboardButton(text="Play and Earn", web_app=
+                                  WebAppInfo(url=self.web_app_url))],
             [InlineKeyboardButton(text="Join community", url=f"https://t.me/{bot_info.username}")],
             [InlineKeyboardButton(text="Help", callback_data="help")]
         ])

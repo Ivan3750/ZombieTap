@@ -6,14 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'style/index.css' %}">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <title>Main</title>
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+    if (!sessionStorage.getItem('dataSent')) {
+        sendData();
+    }
+});
+
+function sendData() {
+    var tg = window.Telegram.WebApp;
+    var user_id = tg.initDataUnsafe.user.id;
+    var user_full_name = tg.initDataUnsafe.user.first_name;
+    var user_nickname = tg.initDataUnsafe.user.username;
+
+    fetch('/user-id/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({'user_id': user_id, 'user_full_name': user_full_name, 'user_nickname': user_nickname})
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        sessionStorage.setItem('dataSent', 'true');
+        location.reload();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+    </script>
 </head>
 <body>
   <main>
     <div class="main">
       <div class="score">
         <img class="coin" src="{% static 'assets/icons/coin.png' %}" alt="Coin">
-        <p>3,042</p>
+        <p>{{ zb_coin }}</p>
       </div>
       <div class="rank">777,777th</div>
 
@@ -50,13 +99,13 @@
         </div>
       </a>
       <a href="{% url 'friends' %}">
-        <div class="tab">
+        <div class=" tab">
           <img src="{% static 'assets/icons/users_149066.png' %}" alt="Friends" class="tab-icon">
           <p class="tab-name">Friends</p>
         </div>
       </a>
     </div>
   </main>
-  <script src="{% static 'scripts\index.js' %}"></script>
+  <script src="{% static 'scripts/index.js' %}"></script>
 </body>
 </html>

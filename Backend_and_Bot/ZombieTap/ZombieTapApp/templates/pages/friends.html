@@ -18,36 +18,20 @@
       </div>
       <button class="invite-btn">Invite Friends</button>
     <div class="friends-block">
-        <div class="friends-box">
+      {% for friend in friends %}
+          <div class="friends-box">
             <div class="friends-icon-box">
+              <img style="max-width: 30px; max-height: 30px;" src="{{ friend.photo_of_friends }}" alt="FRIENDIMAGE">
             </div>
             <div class="friends-info">
-                <p class="friends-name">Peter</p>
+                <p class="friends-name">{{ friend.name_of_friends }}</p>
             </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
+            <div class="friends-reward-box">
+              <p class="friends-reward-amount">{{ zb_coin }}</p>
               <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
-            </div>        </div>
-        <div class="friends-box">
-          <div class="friends-icon-box">
+            </div>        
           </div>
-          <div class="friends-info">
-              <p class="friends-name">Peter</p>
-          </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
-              <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
-            </div>      </div>
-      <div class="friends-box">
-        <div class="friends-icon-box">
-        </div>
-        <div class="friends-info">
-            <p class="friends-name">Peter</p>
-        </div>
-<div class="friends-reward-box">
-              <p class="friends-reward-amount">600</p>
-              <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
-            </div>    </div>
+      {% endfor %}
     </div>
     </div>
     <div class="controls">

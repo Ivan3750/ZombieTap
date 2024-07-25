@@ -25,13 +25,15 @@ SECRET_KEY = 'django-insecure-u-d60+-8p=z4&h3pg4wez#owmtn*g+auhf-$4)%@n)@k!16oft
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['immensely-frank-stingray.ngrok-free.app', '127.0.0.1', 'localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'ZombieTapApp',
+    'corsheaders',
+    'django_extensions',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,7 +43,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://immensely-frank-stingray.ngrok-free.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://immensely-frank-stingray.ngrok-free.app',
+]
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,16 +97,9 @@ DATABASES = {
     }
 }
 
-import os
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# URL для доступу до статичних файлів
-STATIC_URL = '/static/'
-
 # Додаткові директорії зі статичними файлами
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    BASE_DIR / "static",
 ]
 
 

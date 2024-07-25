@@ -20,3 +20,4 @@ document.addEventListener("DOMContentLoaded", () => {
         if (i > 10) i = 1;
     }, 125); // Adjust the interval time as needed
 });
+
