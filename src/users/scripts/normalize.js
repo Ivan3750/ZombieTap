@@ -17,3 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
   });
   
+
+/* if(window.innerWidth > 768){
+  window.location.href = "../pages/error.html"
+} */

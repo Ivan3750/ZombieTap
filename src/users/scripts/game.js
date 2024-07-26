@@ -30,7 +30,7 @@ const obstacleWidth = 120;
 const obstacleHeight = 140;
 const ghostWidth = 150;
 const ghostHeight = 200;
-let initialObstacleSpeed = 6;
+let initialObstacleSpeed = 8;
 let obstacleSpeed = initialObstacleSpeed;
 
 let score = 0;
@@ -38,27 +38,28 @@ let tokens = 0;
 let multiplier = 1;
 
 const zombieRunImages = [];
+const zombieJumpImages = [];
+const zombieIdleImages = [];
+const zombieAttackImages = [];
+
 for (let i = 1; i <= 8; i++) {
     const img = new Image();
     img.src = `../../assets/sprites/${zombieIndex}/Run (${i}).png`;
     zombieRunImages.push(img);
 }
 
-const zombieJumpImages = [];
 for (let i = 1; i <= 15; i++) {
     const img = new Image();
     img.src = `../../assets/sprites/${zombieIndex}/Jump (${i}).png`;
     zombieJumpImages.push(img);
 }
 
-const zombieIdleImages = [];
 for (let i = 1; i <= 10; i++) {
     const img = new Image();
     img.src = `../../assets/sprites/${zombieIndex}/Idle ${zombieIndex} (${i}).png`;
     zombieIdleImages.push(img);
 }
 
-const zombieAttackImages = [];
 for (let i = 1; i <= 8; i++) {
     const img = new Image();
     img.src = `../../assets/sprites/${zombieIndex}/Attack (${i}).png`;
@@ -84,13 +85,6 @@ ghostImage.onload = () => {
     ghostImageLoaded = true;
 };
 
-const playButtonImage = new Image();
-playButtonImage.src = `../../assets/img/BackgroundGame0.jpeg`;
-
-let gameStarted = false;
-let gameIdle = true;
-let gameOver = false;
-
 function loadImages(images, callback) {
     let loadedCount = 0;
     images.forEach((image) => {
@@ -114,14 +108,7 @@ let groundX = 0;
 const groundSpeed = 4;
 
 function drawBackground() {
-    const bgWidth = backgroundImage.width;
-    const bgHeight = backgroundImage.height;
-    const srcX = 0;
-    const srcY = 0;
-    const srcWidth = Math.min(bgWidth, canvasWidth);
-    const srcHeight = Math.min(bgHeight, canvasHeight);
-
-    ctx.drawImage(backgroundImage, srcX, srcY, srcWidth, srcHeight, 0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(backgroundImage, 0, 0, canvasWidth, canvasHeight);
 }
 
 function drawGround() {
@@ -146,16 +133,7 @@ function drawZombie() {
     }
 
     const currentImages = isJumping ? zombieJumpImages : isAttacking ? zombieAttackImages : zombieRunImages;
-    if (currentFrame >= currentImages.length) {
-        console.error('Current frame index out of bounds:', currentFrame);
-        return;
-    }
-
     const currentImage = currentImages[currentFrame];
-    if (!currentImage) {
-        console.error('Current image is undefined:', currentFrame);
-        return;
-    }
 
     const originalWidth = currentImage.width;
     const cropWidth = originalWidth - cropIndex;
@@ -178,10 +156,6 @@ function drawZombie() {
 function drawObstacles() {
     obstacles.forEach((obstacle) => {
         const obstacleImg = obstacleImages[obstacle.imgIndex];
-        if (!obstacleImg) {
-            console.error('Obstacle image is undefined:', obstacle.imgIndex);
-            return;
-        }
         ctx.drawImage(obstacleImg, obstacle.x, groundY - obstacleHeight - 170, obstacleWidth, obstacleHeight);
     });
 
@@ -251,9 +225,9 @@ function draw() {
         ctx.fillText('Game Over', canvasWidth / 2, canvasHeight / 2 - 50);
         ctx.font = '80px Arial';
         ctx.fillText(`Score: ${Math.floor(score)}`, canvasWidth / 2, canvasHeight / 2 + 50);
-        setTimeout(()=>{
+        setTimeout(() => {
             window.location.href = "../pages/index.html"
-        },500)
+        }, 500)
         return;
     }
 
@@ -304,13 +278,14 @@ function checkCollision(zombieX, zombieY, obstacleX, obstacleY, obstacleWidth, o
 
 function resetGame() {
     zombieX = 50;
-    zombieY = groundY - zombieHeight - 170;
+    zombieY = groundY - zombieHeight - 150;
     zombieSpeedY = 0;
     obstacles = [];
     ghostObstacles = [];
     score = 0;
     tokens = 0;
     obstacleSpeed = initialObstacleSpeed;
+    gameOver = false;
 }
 
 function gameLoop() {
@@ -323,8 +298,6 @@ function gameLoop() {
 window.addEventListener("click", () => {
     if (gameOver) {
         resetGame();
-        gameOver = false;
-        startGame();
     } else if (!isJumping) {
         zombieSpeedY = jumpPower;
         isJumping = true;
@@ -351,7 +324,7 @@ document.addEventListener('keydown', (event) => {
 });
 
 setInterval(() => {
-    if (gameStarted && !gameOver) {
+    if (!gameOver) {
         obstacles.push({
             x: canvasWidth,
             y: groundY - obstacleHeight,
@@ -361,7 +334,7 @@ setInterval(() => {
 }, 3000);
 
 function spawnGhost() {
-    if (gameStarted && !gameOver) {
+    if (!gameOver) {
         ghostObstacles.push({
             x: canvasWidth,
             y: Math.random() * (canvasHeight - ghostHeight)
@@ -369,43 +342,12 @@ function spawnGhost() {
     }
 }
 
-function drawIdleScreen() {
-    frameCount++;
-    if (frameCount >= frameSpeed) {
-        frameCount = 0;
-        currentFrame = (currentFrame + 1) % zombieIdleImages.length;
-    }
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    drawBackground();
-    ctx.drawImage(zombieIdleImages[currentFrame], zombieX, zombieY, zombieWidth, zombieHeight);
-    ctx.drawImage(playButtonImage, canvasWidth / 2 - 100, canvasHeight / 2 - 50, 200, 100);
-}
-
 function startGame() {
     gameStarted = true;
-    gameIdle = false;
     setInterval(gameLoop, 1000 / 60);
 }
 
-canvas.addEventListener('click', (event) => {
-    if (gameIdle) {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        if (x >= canvasWidth / 2 - 100 && x <= canvasWidth / 2 + 100 &&
-            y >= canvasHeight / 2 - 50 && y <= canvasHeight / 2 + 50) {
-            startGame();
-        }
-    }
+loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, ...obstacleImages, ghostImage], () => {
+    resetGame();
+    startGame();
 });
-
-loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, ...obstacleImages, ghostImage, playButtonImage], () => {
-    setInterval(() => {
-        if (gameIdle) {
-            drawIdleScreen();
-        }
-    }, 1000 / 60);
-});
-
-startGame()
