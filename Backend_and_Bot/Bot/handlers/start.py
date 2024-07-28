@@ -1,7 +1,7 @@
 from aiogram import Router, Bot, F
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, CallbackQuery
 from aiogram.filters import CommandStart, Command
-
+from database.database import conn, cursor
 
 
 class StartCommand:
@@ -15,26 +15,24 @@ class StartCommand:
         self.web_app_url = 'https://immensely-frank-stingray.ngrok-free.app'
 
 
-    async def add_user_to_db(message: Message):
-        pass
-        # username = message.from_user.username
-        # telegram_id = message.from_user.id
-        # username_telegram = message.from_user.first_name
-        # database.cursor.execute("SELECT * FROM users WHERE id = %s", (telegram_id,))
-        # record = database.cursor.fetchone()
+    # async def add_user_to_db(self, message: Message):
+    #     cursor.execute("SELECT * FROM users WHERE id = %s", (message.from_user.id,))
+    #     record = cursor.fetchone()
 
-        # if message.chat.type == "private" or message.chat.type == "supergroup" or message.chat.type == "group":
-        #     if record is None:
-        #             database.cursor.execute("INSERT INTO users (id, tg_name, link) VALUES (%s, %s, %s)", (telegram_id, username_telegram, username))
-        #             database.conn.commit()
-        #     else:
-        #         if record[1] != username_telegram or record[1] != username:
-        #             database.cursor.execute("UPDATE users SET tg_name = %s, link = %s WHERE id = %s", (username_telegram, username, telegram_id,))
-        #             database.conn.commit()
+    #     if record is None:
+    #         # Вставка нового користувача
+    #         cursor.execute("INSERT INTO users (id, name, nickname) VALUES (%s, %s, %s)", (message.from_user.id, message.from_user.first_name, message.from_user.username))
+    #         conn.commit()
+    #     else:
+    #         # Оновлення існуючого користувача, якщо ім'я або псевдонім змінені
+    #         if record[1] != message.from_user.first_name or record[2] != message.from_user.username:
+    #             cursor.execute("UPDATE users SET name = %s, nickname = %s WHERE id = %s", (message.from_user.first_name, message.from_user.username, message.from_user.id,))
+    #             conn.commit()
+                
 
 
     async def start_cmd(self, message: Message, bot: Bot):
-        # await self.add_user_to_db(message=message)
+        #await self.add_user_to_db(message=message)
         bot_info = await bot.get_me()
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="Play and Earn", web_app=

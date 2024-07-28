@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Task, CustomUser
+from .models import Task, Users, Friends
 from .serializers import TaskSerializer
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -16,12 +16,6 @@ class TaskList(APIView):
         tasks = Task.objects.all()
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
-    
-# class UsersList(APIView):
-#     def get(self, request):
-#         friends = Users.objects.all()
-#         serializer = UsersSerializer(friends, many=True)
-#         return Response(serializer.data)
 
 
 class ViewsFunction():
@@ -30,10 +24,12 @@ class ViewsFunction():
 
 
     def friends(self, request):
-        #friends = Users.objects.all()
+        user_id = request.session.get('user_id')
+        friends = Friends.objects.filter(user_id=user_id).select_related('friend')  
         context = {
             "zb_coin": 2,
-            "friends": "hh"
+            "friends": friends,
+            "url_for_friend": f'https://t.me/ZombieTapTest_bot?start={user_id}'
         }
         return render(request, 'pages/friends.html', context)
 
@@ -41,21 +37,25 @@ class ViewsFunction():
     def boost(self, request):
         try:
             user_id = request.session.get('user_id')
-            user = CustomUser.objects.get(User_id=user_id)
+            user = Users.objects.get(user_id=user_id)
             return render(request, 'pages/boost.html', {"zb_coin" : user.money})
-        except CustomUser.DoesNotExist:
+        except Users.DoesNotExist:
             return render(request, 'pages/boost.html', {'error': 'User not found'})
         
 
     def task(self, request):
         tasks = Task.objects.all()
-        user_id = request.session.get('user_id')
-        user = CustomUser.objects.get(User_id=user_id)
-        context = {
-            "zb_coin": user.money,
-            "tasks": tasks
-        }
-        return render(request, 'pages/task.html', context)
+        try:
+            tasks = Task.objects.all()
+            user_id = request.session.get('user_id')
+            user = Users.objects.get(user_id=user_id)
+            context = {
+                "zb_coin": user.money,
+                "tasks": tasks
+            }
+            return render(request, 'pages/task.html', context)
+        except Users.DoesNotExist:
+            return render(request, 'pages/task.html', {"tasks": tasks})
 
 
     def game(self, request):
@@ -78,12 +78,12 @@ class ViewsFunction():
                 print(f'User ID: {user_id}\nUser Full Name: {user_name}\nUser NickName: {user_nickname}')  
 
                 try:
-                    user = CustomUser.objects.get(User_id=user_id)
+                    user = Users.objects.get(user_id=user_id)
                     user.user_nickname = user_nickname
                     user.user_name = user_name
                     user.save()
-                except CustomUser.DoesNotExist:
-                    user = CustomUser(User_id=user_id, user_nickname=user_nickname, user_name=user_name, money=0)
+                except Users.DoesNotExist:
+                    user = Users(user_id=user_id, user_nickname=user_nickname, user_name=user_name, money=0)
                     user.save()
 
                 # Збереження user_id в сесії
@@ -94,13 +94,14 @@ class ViewsFunction():
                 return JsonResponse({'status': 'fail', 'error': 'Invalid JSON'}, status=400)
         return JsonResponse({'status': 'fail'}, status=400)
 
+
     def index(self, request):
         user_id = request.session.get('user_id')
         if user_id:
             try:
-                user = CustomUser.objects.get(User_id=user_id)
+                user = Users.objects.get(user_id=user_id)
                 return render(request, 'pages/index.html', {'zb_coin': user.money})
-            except CustomUser.DoesNotExist:
+            except Users.DoesNotExist:
                 return render(request, 'pages/index.html', {'error': 'User not found'})
         else:
             return render(request, 'pages/index.html', {'error': 'User ID not found in session'})

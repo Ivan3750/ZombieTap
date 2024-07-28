@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
@@ -11,12 +10,31 @@ class Task(models.Model):
     def __str__(self):
         return self.task
     
-class CustomUser(models.Model):
-    User_id = models.BigIntegerField(unique=True, primary_key=True)
+
+from django.db import models
+from decimal import Decimal  # Імпорт Decimal
+
+class Users(models.Model):
+    user_id = models.BigIntegerField(unique=True, primary_key=True)
     user_nickname = models.CharField(max_length=50)
     user_name = models.CharField(max_length=50)
-    money = models.DecimalField(max_digits=10, decimal_places=0, default=0)
-    friends = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='user_friends')
+    user_photo_url = models.URLField(max_length=100, null=True)
+    money = models.DecimalField(max_digits=10, decimal_places=0, default=Decimal(0))
+    last_game = models.DateTimeField(null=True, default=None)
+    hurt_limit_lvl = models.DecimalField(max_digits=5, decimal_places=0, default=Decimal(1))
+    regeneration_lvl = models.DecimalField(max_digits=5, decimal_places=0, default=Decimal(1))
+    multitap_lvl = models.DecimalField(max_digits=5, decimal_places=0, default=Decimal(1))
 
     def __str__(self):
         return self.user_name
+
+
+    def __str__(self):
+        return self.user_name
+    
+class Friends(models.Model):
+    user = models.ForeignKey(Users, related_name='friends', on_delete=models.CASCADE, null=True)
+    friend = models.ForeignKey(Users, related_name='friend_of', on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        unique_together = ('user', 'friend')

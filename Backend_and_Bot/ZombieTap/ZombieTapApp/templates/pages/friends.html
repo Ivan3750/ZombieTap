@@ -1,14 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
-    <link rel="stylesheet" href="{% static 'style/index.css' %}">
-    <link rel="stylesheet" href="{% static 'style/friends.css' %}">
-    <title>Friends</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
+  <link rel="stylesheet" href="{% static 'style/index.css' %}">
+  <link rel="stylesheet" href="{% static 'style/friends.css' %}">
+  <title>Friends</title>
 </head>
+
 <body>
   <main>
     <div class="main">
@@ -16,23 +18,30 @@
         <p class="friends-amount">5</p>
         <p class="friends-text">Friends</p>
       </div>
-      <button class="invite-btn">Invite Friends</button>
-    <div class="friends-block">
-      {% for friend in friends %}
-          <div class="friends-box">
-            <div class="friends-icon-box">
-              <img style="max-width: 30px; max-height: 30px;" src="{{ friend.photo_of_friends }}" alt="FRIENDIMAGE">
-            </div>
-            <div class="friends-info">
-                <p class="friends-name">{{ friend.name_of_friends }}</p>
-            </div>
-            <div class="friends-reward-box">
-              <p class="friends-reward-amount">{{ zb_coin }}</p>
-              <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
-            </div>        
+      <p id="URL" style="display: none;">{{ url_for_friend }}</p>
+      <button onclick="copyText()" class="invite-btn">Invite Friends</button>
+      <div class="friends-block">
+        {% for friend in friends %}
+        <div class="friends-box">
+          <div class="friends-icon-box">
+            <img style="max-width: 30px; max-height: 30px;" src="{{ friend.photo_of_friends }}" alt="">
           </div>
-      {% endfor %}
-    </div>
+          <div class="friends-info">
+              {% if friends.count > 0 %}  <!-- Додаємо перевірку на кількість об'єктів -->
+                  {% for friend in friends %}
+                      <p class="friends-name">{{ friend.friend.user_nickname }}</p>
+                  {% endfor %}
+              {% else %}
+                  <p class="friends-name">No Friends!</p>
+              {% endif %}
+          </div>
+          <div class="friends-reward-box">
+            <p class="friends-reward-amount">{{ zb_coin }}</p>
+            <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
     <div class="controls">
       <a href="{% url 'boost' %}">
@@ -40,7 +49,7 @@
           <img src="{% static 'assets/icons/rocket_6437747.png' %}" alt="" class="tab-icon">
           <p class="tab-name">Boosts</p>
         </div>
-      </a> 
+      </a>
       <a href="{% url 'task' %}">
         <div class="tab">
           <img src="{% static 'assets/icons/check-list_4630883.png' %}" alt="" class="tab-icon">
@@ -67,7 +76,29 @@
       </a>
     </div>
   </main>
-    
+
+  <script>
+    function copyText() {
+      var textElement = document.getElementById("URL");
+      var text = textElement.textContent || textElement.innerText;
+
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+
+      navigator.clipboard.writeText(textarea.value).then(function () {
+        alert("Send this url to friend");
+      }).catch(function (error) {
+        alert("Error of copying: " + error);
+      });
+
+      document.body.removeChild(textarea);
+    }
+  </script>
 
 </body>
+
 </html>

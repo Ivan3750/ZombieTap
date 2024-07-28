@@ -1,62 +1,67 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
-    <link rel="stylesheet" href="{% static 'style/index.css' %}">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <title>Main</title>
-    <script>
-      document.addEventListener('DOMContentLoaded', (event) => {
-    if (!sessionStorage.getItem('dataSent')) {
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'style/normalize.css' %}">
+  <link rel="stylesheet" href="{% static 'style/index.css' %}">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>Main</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      if (!sessionStorage.getItem('dataSent')) {
         sendData();
-    }
-});
+      }
+    });
 
-function sendData() {
-    var tg = window.Telegram.WebApp;
-    var user_id = tg.initDataUnsafe.user.id;
-    var user_full_name = tg.initDataUnsafe.user.first_name;
-    var user_nickname = tg.initDataUnsafe.user.username;
+    function sendData() {
+      var tg = window.Telegram.WebApp;
+      var user_id = tg.initDataUnsafe.user.id;
+      var user_full_name = tg.initDataUnsafe.user.first_name;
+      var user_nickname = tg.initDataUnsafe.user.username;
+      var user_photo = tg.initDataUnsafe.user.photo_url;
 
-    fetch('/user-id/', {
+      window.Telegram.WebApp.expand();
+
+      fetch('/user-id/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({'user_id': user_id, 'user_full_name': user_full_name, 'user_nickname': user_nickname})
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        sessionStorage.setItem('dataSent', 'true');
-        location.reload();
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
-}
+        body: JSON.stringify({ 'user_id': user_id, 'user_full_name': user_full_name, 'user_nickname': user_nickname, 'user_photo': user_photo })
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          sessionStorage.setItem('dataSent', 'true');
+          location.reload();
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
         }
+      }
+      return cookieValue;
     }
-    return cookieValue;
-}
 
-    </script>
+  </script>
 </head>
+
 <body>
   <main>
     <div class="main">
@@ -79,7 +84,7 @@ function getCookie(name) {
           <img src="{% static 'assets/icons/rocket_6437747.png' %}" alt="Boosts" class="tab-icon">
           <p class="tab-name">Boosts</p>
         </div>
-      </a> 
+      </a>
       <a href="{% url 'task' %}">
         <div class="tab">
           <img src="{% static 'assets/icons/check-list_4630883.png' %}" alt="Task" class="tab-icon">
@@ -108,4 +113,5 @@ function getCookie(name) {
   </main>
   <script src="{% static 'scripts/index.js' %}"></script>
 </body>
+
 </html>
