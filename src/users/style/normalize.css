@@ -112,6 +112,7 @@ main {
   gap: 20px;
   box-sizing: border-box;
   height: 100%;
+  z-index: 5;
 }
 
 .main {

@@ -1,3 +1,5 @@
+let zombieIndex = 1;
+
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
@@ -6,65 +8,66 @@ canvas.height = window.innerHeight;
 
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-
 const groundY = (canvasHeight / 2) + 150;
 
-let zombieIndex = 1;
+/* ZOMBIE  */
 let zombieX = 50;
 let zombieY = groundY - 450;
-let zombieWidth = 200;
-let zombieHeight = 327;
+const zombieWidth = 200;
+const zombieHeight = 327;
 let zombieSpeedY = 1;
-let gravity = 0.35;
-let jumpPower = -15.5;
-let isJumping = false;
+const gravity = 0.38;
+const jumpPower = -15.5;
+let isJumping = true;
 let isAttacking = false;
-let cropIndex = 100;
+const cropIndex = 100;
 let zombieSpeed = 7;
+const ghostScore = 500;
 
+/* OBSTACLES */
 let obstacles = [];
 let ghostObstacles = [];
+let ghostActive = false;
 const obstacleImages = [];
 const numObstacleImages = 7;
 const obstacleWidth = 120;
 const obstacleHeight = 140;
 const ghostWidth = 150;
 const ghostHeight = 200;
-let initialObstacleSpeed = 8;
+const initialObstacleSpeed = 8;
 let obstacleSpeed = initialObstacleSpeed;
 
+/* GAME */
 let score = 0;
 let tokens = 0;
 let multiplier = 1;
+let gameOver = false;
+let gameStarted = false;
+const spawnSensitivity = 0.75;
+let lastTap = 0;
 
+/* TIME */
+let lastObstacleSpawnTime = Date.now();
+let lastGhostSpawnTime = Date.now();
+
+/* IMAGES */
 const zombieRunImages = [];
 const zombieJumpImages = [];
 const zombieIdleImages = [];
 const zombieAttackImages = [];
 
-for (let i = 1; i <= 8; i++) {
-    const img = new Image();
-    img.src = `../../assets/sprites/${zombieIndex}/Run (${i}).png`;
-    zombieRunImages.push(img);
+function loadImageArray(basePath, count, array) {
+    for (let i = 1; i <= count; i++) {
+        const img = new Image();
+        img.src = `${basePath} (${i}).png`;
+        array.push(img);
+    }
 }
 
-for (let i = 1; i <= 15; i++) {
-    const img = new Image();
-    img.src = `../../assets/sprites/${zombieIndex}/Jump (${i}).png`;
-    zombieJumpImages.push(img);
-}
-
-for (let i = 1; i <= 10; i++) {
-    const img = new Image();
-    img.src = `../../assets/sprites/${zombieIndex}/Idle ${zombieIndex} (${i}).png`;
-    zombieIdleImages.push(img);
-}
-
-for (let i = 1; i <= 8; i++) {
-    const img = new Image();
-    img.src = `../../assets/sprites/${zombieIndex}/Attack (${i}).png`;
-    zombieAttackImages.push(img);
-}
+loadImageArray(`../../assets/sprites/${zombieIndex}/Run`, 8, zombieRunImages);
+loadImageArray(`../../assets/sprites/${zombieIndex}/Jump`, 15, zombieJumpImages);
+loadImageArray(`../../assets/sprites/${zombieIndex}/Idle ${zombieIndex}`, 10, zombieIdleImages);
+loadImageArray(`../../assets/sprites/${zombieIndex}/Attack`, 8, zombieAttackImages);
 
 const backgroundImage = new Image();
 backgroundImage.src = '../../assets/img/BackgroundGameOut-1.jpg';
@@ -72,32 +75,26 @@ backgroundImage.src = '../../assets/img/BackgroundGameOut-1.jpg';
 const groundImage = new Image();
 groundImage.src = '../../assets/img/Background-1.jpg';
 
-for (let i = 1; i < numObstacleImages; i++) {
+for (let i = 1; i <= numObstacleImages; i++) {
     const img = new Image();
     img.src = `../../assets/sprites/obs/${i}.png`;
     obstacleImages.push(img);
 }
 
-const ghostImage = new Image();
-let ghostImageLoaded = false;
-ghostImage.src = '../../assets/sprites/ghost/0.png';
-ghostImage.onload = () => {
-    ghostImageLoaded = true;
-};
+const ghostImages = [];
+for (let i = 0; i <= 3; i++) {
+    const img = new Image();
+    img.src = `../../assets/sprites/ghost/${i}.png`;
+    ghostImages.push(img);
+}
 
-function loadImages(images, callback) {
-    let loadedCount = 0;
-    images.forEach((image) => {
-        image.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) {
-                callback();
-            }
-        };
-        image.onerror = () => {
-            console.error('Failed to load image:', image.src);
-        };
-    });
+function loadImages(images) {
+    return Promise.all(images.map(image => {
+        return new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = () => reject(new Error(`Failed to load image: ${image.src}`));
+        });
+    }));
 }
 
 let currentFrame = 0;
@@ -129,28 +126,32 @@ function drawZombie() {
     if (frameCount >= frameSpeed) {
         frameCount = 0;
         const currentImages = isJumping ? zombieJumpImages : isAttacking ? zombieAttackImages : zombieRunImages;
-        currentFrame = (currentFrame + 1) % currentImages.length;
+        currentFrame = (currentFrame + 1) % (currentImages.length || 1);
     }
 
     const currentImages = isJumping ? zombieJumpImages : isAttacking ? zombieAttackImages : zombieRunImages;
     const currentImage = currentImages[currentFrame];
 
-    const originalWidth = currentImage.width;
-    const cropWidth = originalWidth - cropIndex;
-    const cropHeight = currentImage.height;
-    const cropX = 0;
+    if (currentImage && currentImage.width && currentImage.height) {
+        const originalWidth = currentImage.width;
+        const cropWidth = originalWidth - cropIndex;
+        const cropHeight = currentImage.height;
+        const cropX = 0;
 
-    ctx.drawImage(
-        currentImage,
-        cropX,
-        0,
-        cropWidth,
-        cropHeight,
-        zombieX,
-        zombieY,
-        zombieWidth,
-        zombieHeight
-    );
+        ctx.drawImage(
+            currentImage,
+            cropX,
+            0,
+            cropWidth,
+            cropHeight,
+            zombieX,
+            zombieY,
+            zombieWidth,
+            zombieHeight
+        );
+    } else {
+        console.warn('currentImage is undefined or invalid:', currentImage);
+    }
 }
 
 function drawObstacles() {
@@ -160,8 +161,14 @@ function drawObstacles() {
     });
 
     ghostObstacles.forEach((ghost) => {
-        if (ghostImageLoaded) {
-            ctx.drawImage(ghostImage, ghost.x, ghost.y, ghostWidth, ghostHeight);
+        if (ghostImages.length > 0) {
+            ghost.frameCount++;
+            if (ghost.frameCount >= frameSpeed) {
+                ghost.frameCount = 0;
+                ghost.frameIndex = (ghost.frameIndex + 1) % ghostImages.length;
+            }
+            const ghostImg = ghostImages[ghost.frameIndex];
+            ctx.drawImage(ghostImg, ghost.x, ghost.y, ghostWidth, ghostHeight);
         }
     });
 }
@@ -194,22 +201,31 @@ function update() {
 
     ghostObstacles.forEach((ghost) => {
         if (checkCollision(zombieX, zombieY, ghost.x, ghost.y, ghostWidth, ghostHeight)) {
-            gameOver = true;
+            if (isAttacking) {
+                ghost.isHit = true;
+            } else {
+                gameOver = true;
+            }
         }
     });
 
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacleWidth > 0);
-    ghostObstacles = ghostObstacles.filter(ghost => ghost.x + ghostWidth > 0);
+    ghostObstacles = ghostObstacles.filter(ghost => {
+        if (ghost.x + ghostWidth <= 0 || ghost.isHit) {
+            ghostActive = false;
+            return false;
+        }
+        return true;
+    });
 
     score += multiplier * 0.1;
 
     if (Math.floor(score) % 100 === 0) {
         obstacleSpeed += 0.1;
+        zombieSpeed += 0.1;
     }
 
-    if (score > 1000 && Math.floor(score) % 500 === 0) {
-        spawnGhost();
-    }
+    spawnEntities();
 }
 
 function draw() {
@@ -218,16 +234,7 @@ function draw() {
     drawGround();
 
     if (gameOver) {
-        ctx.font = '80px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('Game Over', canvasWidth / 2, canvasHeight / 2 - 50);
-        ctx.font = '80px Arial';
-        ctx.fillText(`Score: ${Math.floor(score)}`, canvasWidth / 2, canvasHeight / 2 + 50);
-        setTimeout(() => {
-            window.location.href = "../pages/index.html"
-        }, 500)
+        gameOverScreen();
         return;
     }
 
@@ -240,31 +247,32 @@ function draw() {
     scoreImg.src = '../../assets/icons/rocket.png';
     tokensImg.src = '../../assets/icons/coin.png';
 
-    scoreImg.onload = () => {
-        tokensImg.onload = () => {
-            ctx.font = '80px Arial';
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+    Promise.all([
+        new Promise(resolve => scoreImg.onload = resolve),
+        new Promise(resolve => tokensImg.onload = resolve)
+    ]).then(() => {
+        ctx.font = '60px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
 
-            const centerX = canvas.width / 2;
-            const imageY = 20;
-            const imageHeight = 80;
+        const centerX = canvas.width / 2;
+        const imageY = 20;
+        const imageHeight = 80;
 
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 10;
 
-            const spacing = 150;
+        const spacing = 150;
 
-            ctx.drawImage(scoreImg, centerX - 190, imageY, imageHeight, imageHeight);
-            ctx.fillText(`${Math.floor(score)}`, centerX - 190 + imageHeight + spacing / 2, imageY + imageHeight / 2);
+        ctx.drawImage(scoreImg, centerX - 190, imageY, imageHeight, imageHeight);
+        ctx.fillText(`${Math.floor(score)}`, centerX - 190 + imageHeight + spacing / 2, imageY + imageHeight / 2);
 
-            ctx.drawImage(tokensImg, centerX - 190 + imageHeight + spacing, imageY, imageHeight, imageHeight);
-            ctx.fillText(`${tokens}`, centerX - 190 + imageHeight + spacing + imageHeight + spacing / 2, imageY + imageHeight / 2);
+        ctx.drawImage(tokensImg, centerX - 190 + imageHeight + spacing, imageY, imageHeight, imageHeight);
+        ctx.fillText(`${tokens}`, centerX - 190 + imageHeight + spacing + imageHeight + spacing / 2, imageY + imageHeight / 2);
 
-            ctx.shadowColor = 'transparent';
-        };
-    };
+        ctx.shadowColor = 'transparent';
+    });
 }
 
 function checkCollision(zombieX, zombieY, obstacleX, obstacleY, obstacleWidth, obstacleHeight) {
@@ -282,32 +290,88 @@ function resetGame() {
     zombieSpeedY = 0;
     obstacles = [];
     ghostObstacles = [];
+    ghostActive = false;
     score = 0;
     tokens = 0;
     obstacleSpeed = initialObstacleSpeed;
     gameOver = false;
+    gameStarted = false;
+    lastObstacleSpawnTime = Date.now();
+    lastGhostSpawnTime = Date.now();
+}
+
+function spawnObstacle() {
+    const imgIndex = Math.floor(Math.random() * numObstacleImages);
+    const x = canvasWidth;
+    obstacles.push({ x, imgIndex });
+}
+
+function spawnGhost() {
+    const x = canvasWidth;
+    const y = groundY - ghostHeight - 170;
+    ghostObstacles.push({ x, y, frameIndex: 0, frameCount: 0, isHit: false });
+}
+
+function spawnEntities() {
+    const now = Date.now();
+    let IntervalIndex = Math.floor((Math.random() * 2200) + 1750);
+    const obstacleSpawnInterval = IntervalIndex; 
+    if (now - lastObstacleSpawnTime > obstacleSpawnInterval) {
+        if (score > ghostScore) {
+            if (Math.random() > spawnSensitivity) {
+                spawnGhost();
+            } else {
+                spawnObstacle();
+            }
+            lastObstacleSpawnTime = now;
+        } else {
+            spawnObstacle();
+            lastObstacleSpawnTime = now;
+        }
+    }
+}
+
+function gameOverScreen() {
+    ctx.font = '80px Arial';
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Game Over', canvasWidth / 2, canvasHeight / 2 - 50);
+    ctx.font = '80px Arial';
+    ctx.fillText(`Score: ${Math.floor(score)}`, canvasWidth / 2, canvasHeight / 2 + 50);
+    setTimeout(() => {
+        window.location.href = "./index.html";
+    }, 3000);
+}
+
+function restartGame() {
+    window.removeEventListener('click', restartGame);
+    resetGame();
+    startGame();
+}
+
+function startGame() {
+    loadImages([backgroundImage, groundImage, ...obstacleImages, ...ghostImages, ...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages])
+        .then(() => {
+            gameStarted = true;
+            window.addEventListener('click', restartGame);
+            setInterval(gameLoop, 1000 / 60);
+        })
+        .catch(error => {
+            console.error('Error loading images:', error);
+        });
 }
 
 function gameLoop() {
     if (!gameOver) {
         update();
+        draw();
+    } else {
+        gameOverScreen();
     }
-    draw();
 }
 
-window.addEventListener("click", () => {
-    if (gameOver) {
-        resetGame();
-    } else if (!isJumping) {
-        zombieSpeedY = jumpPower;
-        isJumping = true;
-        tokens += 1 + Math.floor(score / 400);
-    }
-    isAttacking = true;
-    setTimeout(() => {
-        isAttacking = false;
-    }, 500);
-});
+startGame();
 
 document.addEventListener('keydown', (event) => {
     if ((event.key === 'ArrowUp' || event.key === ' ') && !isJumping) {
@@ -323,31 +387,14 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-setInterval(() => {
-    if (!gameOver) {
-        obstacles.push({
-            x: canvasWidth,
-            y: groundY - obstacleHeight,
-            imgIndex: Math.floor(Math.random() * numObstacleImages)
-        });
+window.addEventListener('touchend', () => {
+    let currentTime = new Date().getTime();
+    let tapLength = currentTime - lastTap;
+    if (tapLength < 600 && tapLength > 0) {
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     }
-}, 3000);
-
-function spawnGhost() {
-    if (!gameOver) {
-        ghostObstacles.push({
-            x: canvasWidth,
-            y: Math.random() * (canvasHeight - ghostHeight)
-        });
-    }
-}
-
-function startGame() {
-    gameStarted = true;
-    setInterval(gameLoop, 1000 / 60);
-}
-
-loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, ...obstacleImages, ghostImage], () => {
-    resetGame();
-    startGame();
+    lastTap = currentTime;
 });

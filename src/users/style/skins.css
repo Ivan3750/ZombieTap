@@ -27,14 +27,14 @@
 }
 
 .sprite{
-    width: 155px;
-    height: 228px;
+    width: 201.5px;
+    height: 296.4px;
     object-fit: cover;
     object-position: left;
 }
 .sprite.lock{
-    width: 155px;
-    height: 228px;
+   /*  width: 155px;
+    height: 228px; */
     object-fit: cover;
     object-position: left;
     filter: brightness(0.1);
@@ -51,6 +51,28 @@
     width: 40px;
     height: 40px;
     position: absolute;
-    left: 60px;
-    top: 100px;
+    left: 80px;
+    top: 150px;
+}
+
+.skin-price-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+    width: 150px;
+    background: #75757551;
+    padding: 10px;
+    border-radius: 14px;
+}
+.skin-price {
+    color: rgba(245, 245, 245, 1);
+    font-family: Arimo;
+    font-size: 35px;
+    font-weight: 900;
+    line-height: 40px;
+    letter-spacing: 0px;
+    text-align: center;
+}
+.coin {
 }
