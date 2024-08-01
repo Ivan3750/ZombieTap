@@ -375,51 +375,43 @@ function gameLoop() {
 }
 
 startGame();
-document.addEventListener('keydown', handleKeyDown);
 
-const DOUBLE_TAP_DELAY = 300; // Delay for double tap in milliseconds
-const SINGLE_TAP_DELAY = 500; // Delay for single tap in milliseconds
-
-let tapTimeout;
-
-
-window.addEventListener('touchend', handleTouchEnd);
-
-function handleKeyDown(event) {
+document.addEventListener('keydown', (event) => {
     if ((event.key === 'ArrowUp' || event.key === ' ') && !isJumping) {
-        jump();
+        zombieSpeedY = jumpPower;
+        isJumping = true;
+        tokens += 1 + Math.floor(score / 400);
     }
     if (event.key === 'a') {
-        attack();
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     }
-}
+});
 
-function handleTouchEnd() {
+
+let tapTimeout;
+const DOUBLE_TAP_DELAY = 300; // Затримка для подвійного кліку в мілісекундах
+const SINGLE_TAP_DELAY = 500; // Затримка для скасування одиночного кліку в мілісекундах
+
+window.addEventListener('touchend', () => {
     let currentTime = new Date().getTime();
     let tapLength = currentTime - lastTap;
 
-    clearTimeout(tapTimeout); // Clear the previous timer
+    clearTimeout(tapTimeout); // Очистити попередній таймер
 
     if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
-        attack();
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     } else {
         tapTimeout = setTimeout(() => {
-            jump();
-        }, DOUBLE_TAP_DELAY);
+            zombieSpeedY = jumpPower;
+            isJumping = true;
+            tokens += 1 + Math.floor(score / 400);        }, DOUBLE_TAP_DELAY);
     }
 
     lastTap = currentTime;
-}
-
-function jump() {
-    zombieSpeedY = jumpPower;
-    isJumping = true;
-    tokens += 1 + Math.floor(score / 400);
-}
-
-function attack() {
-    isAttacking = true;
-    setTimeout(() => {
-        isAttacking = false;
-    }, 500);
-}
+});
