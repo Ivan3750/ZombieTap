@@ -1,11 +1,14 @@
 let zombieIndex = 1;
-
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas(); 
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 const groundY = (canvasHeight / 2) + 150;
@@ -387,14 +390,28 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+
+let tapTimeout;
+const DOUBLE_TAP_DELAY = 300; // Затримка для подвійного кліку в мілісекундах
+const SINGLE_TAP_DELAY = 500; // Затримка для скасування одиночного кліку в мілісекундах
+
 window.addEventListener('touchend', () => {
     let currentTime = new Date().getTime();
     let tapLength = currentTime - lastTap;
-    if (tapLength < 600 && tapLength > 0) {
+
+    clearTimeout(tapTimeout); // Очистити попередній таймер
+
+    if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
         isAttacking = true;
         setTimeout(() => {
             isAttacking = false;
         }, 500);
+    } else {
+        tapTimeout = setTimeout(() => {
+            zombieSpeedY = jumpPower;
+            isJumping = true;
+            tokens += 1 + Math.floor(score / 400);        }, DOUBLE_TAP_DELAY);
     }
+
     lastTap = currentTime;
 });
