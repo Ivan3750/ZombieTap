@@ -245,7 +245,7 @@ function draw() {
     const tokensImg = new Image();
 
     scoreImg.src = '/static/assets/icons/rocket.png';
-    tokensImg.src = '/stati/assets/icons/coin.png';
+    tokensImg.src = '/static/assets/icons/coin.png';
 
     Promise.all([
         new Promise(resolve => scoreImg.onload = resolve),
@@ -314,20 +314,15 @@ function spawnGhost() {
 
 function spawnEntities() {
     const now = Date.now();
-    let IntervalIndex = Math.floor((Math.random() * 2200) + 1750);
-    const obstacleSpawnInterval = IntervalIndex; 
+    let intervalIndex = Math.floor((Math.random() * 2200) + 1750);
+    const obstacleSpawnInterval = intervalIndex; 
     if (now - lastObstacleSpawnTime > obstacleSpawnInterval) {
-        if (score > ghostScore) {
-            if (Math.random() > spawnSensitivity) {
-                spawnGhost();
-            } else {
-                spawnObstacle();
-            }
-            lastObstacleSpawnTime = now;
+        if (score > ghostScore && Math.random() > spawnSensitivity) {
+            spawnGhost();
         } else {
             spawnObstacle();
-            lastObstacleSpawnTime = now;
         }
+        lastObstacleSpawnTime = now;
     }
 }
 
@@ -356,7 +351,7 @@ function startGame() {
         .then(() => {
             gameStarted = true;
             window.addEventListener('click', restartGame);
-            setInterval(gameLoop, 1000 / 60);
+            requestAnimationFrame(gameLoop);
         })
         .catch(error => {
             console.error('Error loading images:', error);
@@ -367,6 +362,7 @@ function gameLoop() {
     if (!gameOver) {
         update();
         draw();
+        requestAnimationFrame(gameLoop);
     } else {
         gameOverScreen();
     }

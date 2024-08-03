@@ -1,14 +1,11 @@
 let zombieIndex = 1;
+
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas(); 
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 const groundY = (canvasHeight / 2) + 150;
@@ -62,32 +59,32 @@ const zombieAttackImages = [];
 function loadImageArray(basePath, count, array) {
     for (let i = 1; i <= count; i++) {
         const img = new Image();
-        img.src = `${basePath} (${i}).png`;
+        img.src = `${basePath}(${i}).png`;
         array.push(img);
     }
 }
 
-loadImageArray(`../../assets/sprites/${zombieIndex}/Run`, 8, zombieRunImages);
-loadImageArray(`../../assets/sprites/${zombieIndex}/Jump`, 15, zombieJumpImages);
-loadImageArray(`../../assets/sprites/${zombieIndex}/Idle ${zombieIndex}`, 10, zombieIdleImages);
-loadImageArray(`../../assets/sprites/${zombieIndex}/Attack`, 8, zombieAttackImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Run`, 8, zombieRunImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Jump`, 15, zombieJumpImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Idle${zombieIndex}`, 10, zombieIdleImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Attack`, 8, zombieAttackImages);
 
 const backgroundImage = new Image();
-backgroundImage.src = '../../assets/img/BackgroundGameOut-1.jpg';
+backgroundImage.src = '/static/assets/img/BackgroundGameOut-1.jpg';
 
 const groundImage = new Image();
-groundImage.src = '../../assets/img/Background-1.jpg';
+groundImage.src = '/static/assets/img/Background-1.jpg';
 
 for (let i = 1; i <= numObstacleImages; i++) {
     const img = new Image();
-    img.src = `../../assets/sprites/obs/${i}.png`;
+    img.src = `/static/assets/sprites/obs/${i}.png`;
     obstacleImages.push(img);
 }
 
 const ghostImages = [];
 for (let i = 0; i <= 3; i++) {
     const img = new Image();
-    img.src = `../../assets/sprites/ghost/${i}.png`;
+    img.src = `/static/assets/sprites/ghost/${i}.png`;
     ghostImages.push(img);
 }
 
@@ -247,8 +244,8 @@ function draw() {
     const scoreImg = new Image();
     const tokensImg = new Image();
 
-    scoreImg.src = '../../assets/icons/rocket.png';
-    tokensImg.src = '../../assets/icons/coin.png';
+    scoreImg.src = '/static/assets/icons/rocket.png';
+    tokensImg.src = '/static/assets/icons/coin.png';
 
     Promise.all([
         new Promise(resolve => scoreImg.onload = resolve),
@@ -317,20 +314,15 @@ function spawnGhost() {
 
 function spawnEntities() {
     const now = Date.now();
-    let IntervalIndex = Math.floor((Math.random() * 2200) + 1750);
-    const obstacleSpawnInterval = IntervalIndex; 
+    let intervalIndex = Math.floor((Math.random() * 2200) + 1750);
+    const obstacleSpawnInterval = intervalIndex; 
     if (now - lastObstacleSpawnTime > obstacleSpawnInterval) {
-        if (score > ghostScore) {
-            if (Math.random() > spawnSensitivity) {
-                spawnGhost();
-            } else {
-                spawnObstacle();
-            }
-            lastObstacleSpawnTime = now;
+        if (score > ghostScore && Math.random() > spawnSensitivity) {
+            spawnGhost();
         } else {
             spawnObstacle();
-            lastObstacleSpawnTime = now;
         }
+        lastObstacleSpawnTime = now;
     }
 }
 
@@ -343,8 +335,9 @@ function gameOverScreen() {
     ctx.font = '80px Arial';
     ctx.fillText(`Score: ${Math.floor(score)}`, canvasWidth / 2, canvasHeight / 2 + 50);
     setTimeout(() => {
-        window.location.href = "./index.html";
+        window.location.href = "/";
     }, 3000);
+    console.log(tokens);
 }
 
 function restartGame() {
@@ -358,7 +351,7 @@ function startGame() {
         .then(() => {
             gameStarted = true;
             window.addEventListener('click', restartGame);
-            setInterval(gameLoop, 1000 / 60);
+            requestAnimationFrame(gameLoop);
         })
         .catch(error => {
             console.error('Error loading images:', error);
@@ -369,57 +362,36 @@ function gameLoop() {
     if (!gameOver) {
         update();
         draw();
+        requestAnimationFrame(gameLoop);
     } else {
         gameOverScreen();
     }
 }
 
 startGame();
-document.addEventListener('keydown', handleKeyDown);
 
-const DOUBLE_TAP_DELAY = 300; // Delay for double tap in milliseconds
-const SINGLE_TAP_DELAY = 500; // Delay for single tap in milliseconds
-
-let tapTimeout;
-
-
-window.addEventListener('touchend', handleTouchEnd);
-
-function handleKeyDown(event) {
+document.addEventListener('keydown', (event) => {
     if ((event.key === 'ArrowUp' || event.key === ' ') && !isJumping) {
-        jump();
+        zombieSpeedY = jumpPower;
+        isJumping = true;
+        tokens += 1 + Math.floor(score / 400);
     }
     if (event.key === 'a') {
-        attack();
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     }
-}
+});
 
-function handleTouchEnd() {
+window.addEventListener('touchend', () => {
     let currentTime = new Date().getTime();
     let tapLength = currentTime - lastTap;
-
-    clearTimeout(tapTimeout); // Clear the previous timer
-
-    if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
-        attack();
-    } else {
-        tapTimeout = setTimeout(() => {
-            jump();
-        }, DOUBLE_TAP_DELAY);
+    if (tapLength < 600 && tapLength > 0) {
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     }
-
     lastTap = currentTime;
-}
-
-function jump() {
-    zombieSpeedY = jumpPower;
-    isJumping = true;
-    tokens += 1 + Math.floor(score / 400);
-}
-
-function attack() {
-    isAttacking = true;
-    setTimeout(() => {
-        isAttacking = false;
-    }, 500);
-}
+});
