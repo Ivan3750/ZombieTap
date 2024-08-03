@@ -80,13 +80,13 @@ html {
 
 body {
   box-sizing: border-box;
-  padding: 20px;
-  display: flex;
+  padding: 15px 10px;
+    display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100svh;
   align-items: center;
-  background: url("../assets/img/background.jpg") no-repeat center/cover;
+  background: url("/static/assets/img/background.jpg") no-repeat center/cover;
 /*   backdrop-filter: grayscale(0.1) opacity(0.4);
  */  overflow: hidden;
   position: relative;
@@ -112,6 +112,7 @@ main {
   gap: 20px;
   box-sizing: border-box;
   height: 100%;
+  z-index: 5;
 }
 
 .main {
@@ -237,7 +238,20 @@ background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 
   font-weight: 400;
 }
 
-.play-btn {
+.play-btn {  
+  width: 250px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgb(95, 95, 95);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  text-align: center;
+  color: rgb(255, 255, 255);
+
+}
+
+.play-btn.active{
   width: 250px;
   height: 40px;
   border-radius: 20px;
@@ -247,10 +261,53 @@ background: none 0% 0% / auto repeat scroll padding-box border-box rgba(10, 10, 
   line-height: 23px;
   text-align: center;
   color: rgb(255, 255, 255);
+
 }
 
 
 .coin-icon{
   width: 25px;
   height: 25px;
+}
+
+
+
+
+.mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #000; /* corrected */
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-2 {
+ 
+}
+
+.loader-2:after {
+  content: " ";
+  display: block;
+  width: 50px;
+  height: 50px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #000;
+  border-color: rgb(255, 96, 69) transparent rgba(255, 97, 69, 0.5) transparent;
+  animation: loader-2-dual-spin 2s linear infinite;
+}
+
+@keyframes loader-2-dual-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

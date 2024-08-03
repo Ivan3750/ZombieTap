@@ -14,7 +14,8 @@ urlpatterns = [
     path('task/', views_var.task, name="task"),
     path('skins/', views_var.skins, name="skins"),
     path('task-list/', TaskList.as_view(), name='task-list'),
-    path('game', views_var.game, name="game"),
+    path('game/', views_var.game, name="game"),
+    path('add-money/', views_var.add_money, name="add_money")
 ]
 
 if settings.DEBUG:

@@ -1,23 +1,38 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const zombie = document.querySelector('.avatar');
-    const num = Array.from({ length: 10 }, (_, i) => i + 1); // Generates an array [1, 2, ..., 10]
-    const preloadImages = [];
+const zombie = document.querySelector('.avatar');
+const playBtn = document.querySelector('.play-btn');
 
-    // Preload images
-    num.forEach(i => {
-        const img = new Image();
-        // Додайте повний шлях до зображення
-        img.src = `/static/assets/sprites/1/Idle1(${i}).png`;
-        preloadImages.push(img);
-    });
 
+const waitTime = 0 //TEST
+
+
+window.addEventListener("load", ()=>{
+    if(waitTime == 0){
+        playBtn.classList.add("active")
+    }else{
+        playBtn.classList.remove("active")
+    }
+})
+
+playBtn.addEventListener("click", ()=>{
+    if(waitTime == 0){
+        playBtn.classList.add("active")
+    }else{
+        playBtn.classList.remove("active")
+    }
+
+    if(playBtn.classList.contains("active")){
+        window.location.href = "/"
+    }
+})
+
+
+
+
+window.addEventListener("load", () => {
     let i = 1;
     const interval = setInterval(() => {
-        let newSrc = `/static/assets/sprites/1/Idle1(${i}).png`;
-        console.log(newSrc); // Відладковий код для перевірки URL-адреси
-        zombie.src = newSrc;
+        zombie.src = `/static/assets/sprites/1/Idle1(${i}).png`; // Adjust to the actual path of the images
         i++;
         if (i > 10) i = 1;
     }, 125); // Adjust the interval time as needed
 });
-

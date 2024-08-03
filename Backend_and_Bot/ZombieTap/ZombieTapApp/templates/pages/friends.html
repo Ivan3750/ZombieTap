@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,7 +37,7 @@
               {% endif %}
           </div>
           <div class="friends-reward-box">
-            <p class="friends-reward-amount">{{ zb_coin }}</p>
+            <p class="friends-reward-amount">{{ friend.friend.money|intcomma }}</p>
             <img src="{% static 'assets/icons/coin.png' %}" class="coin-icon" alt="">
           </div>
         </div>

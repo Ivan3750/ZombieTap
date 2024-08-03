@@ -22,15 +22,19 @@ class AddFriendCommand:
     
     async def message_from_friend(self, message: Message, bot: Bot):
         friend_id = message.text[7:]
-        user = await bot.get_chat(friend_id)
-        with connection.cursor() as cursor:
-            try:
-                cursor.execute('INSERT INTO "ZombieTapApp_friends" (user_id, friend_id) VALUES (%s, %s)', (message.from_user.id, friend_id))
-                connection.commit()
-                await message.reply(f"You are now friends with @{user.username}!")
-                await bot.send_message(chat_id=user.id, text=f"You are now friends with @{message.from_user.username}!")
-            except psycopg2.errors.UniqueViolation:
-                await message.reply(f"You is friends with @{user.username}!")
+        if friend_id == message.from_user.id:
+            await message.reply("You cannot add yourself as a friend!!")
+        else:
+            user = await bot.get_chat(friend_id)
+            with connection.cursor() as cursor:
+                try:
+                    cursor.execute('INSERT INTO "ZombieTapApp_friends" (user_id, friend_id) VALUES (%s, %s)', (message.from_user.id, friend_id))
+                    cursor.execute('INSERT INTO "ZombieTapApp_friends" (user_id, friend_id) VALUES (%s, %s)', (friend_id, message.from_user.id))
+                    connection.commit()
+                    await message.reply(f"You are now friends with @{user.username}!")
+                    await bot.send_message(chat_id=user.id, text=f"You are now friends with @{message.from_user.username}!")
+                except psycopg2.errors.UniqueViolation:
+                    await message.reply(f"You is friends with @{user.username}!")
 
 
     async def add_friend_cmd(self, message: Message, bot: Bot):

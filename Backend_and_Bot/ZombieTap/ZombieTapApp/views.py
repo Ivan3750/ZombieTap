@@ -26,6 +26,7 @@ class ViewsFunction():
     def friends(self, request):
         user_id = request.session.get('user_id')
         friends = Friends.objects.filter(user_id=user_id).select_related('friend')  
+        user = Users.objects.get(user_id=user_id)
         context = {
             "zb_coin": 2,
             "friends": friends,
@@ -38,7 +39,13 @@ class ViewsFunction():
         try:
             user_id = request.session.get('user_id')
             user = Users.objects.get(user_id=user_id)
-            return render(request, 'pages/boost.html', {"zb_coin" : user.money})
+            context = {
+                'zb_coin': user.money,
+                "hurt_limit_lvl": user.hurt_limit_lvl,
+                "regeneration_lvl": user.regeneration_lvl,
+                "multitap_lvl": user.multitap_lvl,
+            }
+            return render(request, 'pages/boost.html', context)
         except Users.DoesNotExist:
             return render(request, 'pages/boost.html', {'error': 'User not found'})
         
@@ -63,7 +70,7 @@ class ViewsFunction():
 
 
     def skins(self, request):
-        return render(request, 'pages/notSupport.html')
+        return render(request, 'pages/skins.html')
 
 
     @csrf_exempt
@@ -100,11 +107,26 @@ class ViewsFunction():
         if user_id:
             try:
                 user = Users.objects.get(user_id=user_id)
-                return render(request, 'pages/index.html', {'zb_coin': user.money})
+                hurt = user.hurt_limit_lvl
+                return render(request, 'pages/index.html', {'zb_coin': user.money, 'hurt': hurt})
             except Users.DoesNotExist:
                 return render(request, 'pages/index.html', {'error': 'User not found'})
         else:
             return render(request, 'pages/index.html', {'error': 'User ID not found in session'})
 
-    
+
+    @csrf_exempt
+    def add_money(self, request):
+        if request.method == 'POST':
+            try:
+                data = json.loads(request.body)
+                zb_coins = data.get('zb_coins')
+                
+                print(f'zb_coins: {zb_coins}')
+                
+                return JsonResponse({'status': 'success'}, status=200)
+
+            except json.JSONDecodeError:
+                return JsonResponse({'status': 'fail', 'error': 'Invalid JSON'}, status=400)
+        return JsonResponse({'status': 'fail'}, status=400)
 

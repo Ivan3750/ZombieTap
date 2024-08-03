@@ -1,161 +1,181 @@
-// Canvas and context
+let zombieIndex = 1;
+
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
-// Resize canvas to fill window
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Canvas dimensions
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-
-// Ground position
 const groundY = (canvasHeight / 2) + 150;
 
-// zombie
+/* ZOMBIE  */
 let zombieX = 50;
-let zombieY = groundY - 450; // Adjusted for zombie height
-let zombieWidth = 200;
-let zombieHeight = 327.05;
-let zombieSpeedY = 0;
-let gravity = 0.4; // Reduced gravity
-let jumpPower = -20; // Increased jump power
-let isJumping = false;
+let zombieY = groundY - 450;
+const zombieWidth = 200;
+const zombieHeight = 327;
+let zombieSpeedY = 1;
+const gravity = 0.38;
+const jumpPower = -15.5;
+let isJumping = true;
 let isAttacking = false;
+const cropIndex = 100;
+let zombieSpeed = 7;
+const ghostScore = 500;
 
-// Obstacles
+/* OBSTACLES */
 let obstacles = [];
-let obstacleWidth = 150; // Adjust based on obstacle image dimensions
-let obstacleHeight = 154.9; // Adjust based on obstacle image dimensions
-let initialObstacleSpeed = 6;
-let obstacleSpeed = initialObstacleSpeed; // Initialize with initialObstacleSpeed
+let ghostObstacles = [];
+let ghostActive = false;
+const obstacleImages = [];
+const numObstacleImages = 7;
+const obstacleWidth = 120;
+const obstacleHeight = 140;
+const ghostWidth = 150;
+const ghostHeight = 200;
+const initialObstacleSpeed = 8;
+let obstacleSpeed = initialObstacleSpeed;
 
-// Score and tokens
+/* GAME */
 let score = 0;
 let tokens = 0;
-let multiplier = 1; // Multiplier for boosts
-
-// Load zombie running images
-const zombieRunImages = [];
-for (let i = 1; i <= 8; i++) {
-    const img = new Image();
-    img.src = `static/assets/sprites/1/Run(${i}).png`; // Adjust to the actual path of the images
-    zombieRunImages.push(img);
-}
-
-// Load zombie jumping images
-const zombieJumpImages = [];
-for (let i = 1; i <= 15; i++) {
-    const img = new Image();
-    img.src = `static/assets/sprites/1/Jump(${i}).png`; // Adjust to the actual path of the images
-    zombieJumpImages.push(img);
-}
-
-// Load zombie idle images
-const zombieIdleImages = [];
-for (let i = 1; i <= 10; i++) { // Assuming there are 10 idle images
-    const img = new Image();
-    img.src = `static/assets/sprites/1/Idle1(${i}).png`; // Adjust to the actual path of the images
-    zombieIdleImages.push(img);
-}
-
-// Load zombie attack images
-const zombieAttackImages = [];
-for (let i = 1; i <= 8; i++) { // Assuming there are 8 attack images
-    const img = new Image();
-    img.src = `static/assets/sprites/1/Attack(${i}).png`; // Adjust to the actual path of the images
-    zombieAttackImages.push(img);
-}
-
-// Load background image
-const backgroundImage = new Image();
-backgroundImage.src = 'static/assets/img/BackgroundGameOut.png'; // Adjust to the actual path of the background image
-
-// Load ground image
-const groundImage = new Image();
-groundImage.src = 'static/assets/img/land.png'; // Adjust to the actual path of the ground image
-
-// Load obstacle images
-const obstacleImages = [];
-const obstacleImg = new Image();
-obstacleImg.src = `static/assets/sprites/obstacle.png`; // Adjust to the actual path of the obstacle image
-obstacleImages.push(obstacleImg);
-
-// Load play button image
-const playButtonImage = new Image();
-playButtonImage.src = `static/assets/sprites/playButton.png`; // Adjust to the actual path of the play button image
-
-// Game state
+let multiplier = 1;
+let gameOver = false;
 let gameStarted = false;
-let gameIdle = true; // Start with idle state
+const spawnSensitivity = 0.75;
+let lastTap = 0;
 
-// Function to ensure all images are loaded
-function loadImages(images, callback) {
-    let loadedCount = 0;
-    images.forEach((image) => {
-        image.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) {
-                callback();
-            }
-        };
-    });
+/* TIME */
+let lastObstacleSpawnTime = Date.now();
+let lastGhostSpawnTime = Date.now();
+
+/* IMAGES */
+const zombieRunImages = [];
+const zombieJumpImages = [];
+const zombieIdleImages = [];
+const zombieAttackImages = [];
+
+function loadImageArray(basePath, count, array) {
+    for (let i = 1; i <= count; i++) {
+        const img = new Image();
+        img.src = `${basePath}(${i}).png`;
+        array.push(img);
+    }
 }
 
-// zombie animation parameters
+loadImageArray(`static/assets/sprites/${zombieIndex}/Run`, 8, zombieRunImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Jump`, 15, zombieJumpImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Idle${zombieIndex}`, 10, zombieIdleImages);
+loadImageArray(`static/assets/sprites/${zombieIndex}/Attack`, 8, zombieAttackImages);
+
+const backgroundImage = new Image();
+backgroundImage.src = '/static/assets/img/BackgroundGameOut-1.jpg';
+
+const groundImage = new Image();
+groundImage.src = '/static/assets/img/Background-1.jpg';
+
+for (let i = 1; i <= numObstacleImages; i++) {
+    const img = new Image();
+    img.src = `/static/assets/sprites/obs/${i}.png`;
+    obstacleImages.push(img);
+}
+
+const ghostImages = [];
+for (let i = 0; i <= 3; i++) {
+    const img = new Image();
+    img.src = `/static/assets/sprites/ghost/${i}.png`;
+    ghostImages.push(img);
+}
+
+function loadImages(images) {
+    return Promise.all(images.map(image => {
+        return new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = () => reject(new Error(`Failed to load image: ${image.src}`));
+        });
+    }));
+}
+
 let currentFrame = 0;
-const frameSpeed = 5; // Adjust speed of animation (lower value for faster animation)
+const frameSpeed = 5;
 let frameCount = 0;
 
-// Ground animation parameters
 let groundX = 0;
-const groundSpeed = 4; // Increased speed of the ground scroll
+const groundSpeed = 4;
 
-// Function to draw background
 function drawBackground() {
     ctx.drawImage(backgroundImage, 0, 0, canvasWidth, canvasHeight);
 }
 
-// Function to draw ground
 function drawGround() {
     const groundWidth = groundImage.width;
     const groundHeight = groundImage.height;
 
-    // Adjust groundX to create scrolling effect
     groundX -= groundSpeed;
     if (groundX <= -groundWidth) {
         groundX = 0;
     }
 
-    // Draw two ground images side by side for seamless scrolling
     ctx.drawImage(groundImage, groundX, groundY - groundHeight, groundWidth, groundHeight);
     ctx.drawImage(groundImage, groundX + groundWidth, groundY - groundHeight, groundWidth, groundHeight);
 }
 
-// Function to draw zombie
-function drawzombie() {
+function drawZombie() {
     frameCount++;
     if (frameCount >= frameSpeed) {
         frameCount = 0;
-        currentFrame = (currentFrame + 1) % (isJumping ? zombieJumpImages.length : isAttacking ? zombieAttackImages.length : zombieRunImages.length);
+        const currentImages = isJumping ? zombieJumpImages : isAttacking ? zombieAttackImages : zombieRunImages;
+        currentFrame = (currentFrame + 1) % (currentImages.length || 1);
     }
 
     const currentImages = isJumping ? zombieJumpImages : isAttacking ? zombieAttackImages : zombieRunImages;
-    ctx.drawImage(currentImages[currentFrame], zombieX, zombieY, zombieWidth, zombieHeight);
+    const currentImage = currentImages[currentFrame];
+
+    if (currentImage && currentImage.width && currentImage.height) {
+        const originalWidth = currentImage.width;
+        const cropWidth = originalWidth - cropIndex;
+        const cropHeight = currentImage.height;
+        const cropX = 0;
+
+        ctx.drawImage(
+            currentImage,
+            cropX,
+            0,
+            cropWidth,
+            cropHeight,
+            zombieX,
+            zombieY,
+            zombieWidth,
+            zombieHeight
+        );
+    } else {
+        console.warn('currentImage is undefined or invalid:', currentImage);
+    }
 }
 
-// Function to draw obstacles
 function drawObstacles() {
     obstacles.forEach((obstacle) => {
-        const obstacleImg = obstacleImages[0]; // Use the single obstacle image
+        const obstacleImg = obstacleImages[obstacle.imgIndex];
         ctx.drawImage(obstacleImg, obstacle.x, groundY - obstacleHeight - 170, obstacleWidth, obstacleHeight);
+    });
+
+    ghostObstacles.forEach((ghost) => {
+        if (ghostImages.length > 0) {
+            ghost.frameCount++;
+            if (ghost.frameCount >= frameSpeed) {
+                ghost.frameCount = 0;
+                ghost.frameIndex = (ghost.frameIndex + 1) % ghostImages.length;
+            }
+            const ghostImg = ghostImages[ghost.frameIndex];
+            ctx.drawImage(ghostImg, ghost.x, ghost.y, ghostWidth, ghostHeight);
+        }
     });
 }
 
-// Function to update game
 function update() {
-    // Update zombie
+    if (gameOver) return;
+
     if (isJumping) {
         zombieSpeedY += gravity;
         zombieY += zombieSpeedY;
@@ -165,88 +185,97 @@ function update() {
         }
     }
 
-    // Update obstacles
     obstacles.forEach((obstacle) => {
         obstacle.x -= obstacleSpeed;
     });
 
-    // Check collision with obstacles
+    ghostObstacles.forEach((ghost) => {
+        ghost.x -= obstacleSpeed;
+    });
+
     obstacles.forEach((obstacle) => {
-        if (checkCollision(zombieX, zombieY, obstacle.x, groundY - obstacleHeight - 170)) {
-            resetGame();
-            
+        if (checkCollision(zombieX, zombieY, obstacle.x, groundY - obstacleHeight - 170, obstacleWidth, obstacleHeight)) {
+            gameOver = true;
         }
     });
 
-    // Remove off-screen obstacles
+    ghostObstacles.forEach((ghost) => {
+        if (checkCollision(zombieX, zombieY, ghost.x, ghost.y, ghostWidth, ghostHeight)) {
+            if (isAttacking) {
+                ghost.isHit = true;
+            } else {
+                gameOver = true;
+            }
+        }
+    });
+
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacleWidth > 0);
+    ghostObstacles = ghostObstacles.filter(ghost => {
+        if (ghost.x + ghostWidth <= 0 || ghost.isHit) {
+            ghostActive = false;
+            return false;
+        }
+        return true;
+    });
 
-    // Update score and speed
-    score += multiplier * 0.1; // Increase score based on multiplier
+    score += multiplier * 0.1;
 
-    // Increase obstacle speed every 100 points
     if (Math.floor(score) % 100 === 0) {
-        obstacleSpeed += 0.1; 
+        obstacleSpeed += 0.1;
+        zombieSpeed += 0.1;
     }
+
+    spawnEntities();
 }
 
-// Function to draw everything
 function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    drawBackground(); // Draw background image
-    drawGround(); // Draw ground image
-    drawzombie();
+    drawBackground();
+    drawGround();
+
+    if (gameOver) {
+        gameOverScreen();
+        return;
+    }
+
+    drawZombie();
     drawObstacles();
-// Створіть об'єкти Image
-const scoreImg = new Image();
-const tokensImg = new Image();
 
-// Встановіть джерела для зображень
-scoreImg.src = 'static/assets/icons/rocket.png'; // Змініть шлях до вашого зображення
-tokensImg.src = 'static/assets/icons/coin.png'; // Змініть шлях до вашого зображення
+    const scoreImg = new Image();
+    const tokensImg = new Image();
 
-// Намалюйте все після завантаження зображень
-scoreImg.onload = () => {
-    tokensImg.onload = () => {
-        // Налаштування шрифтів та кольорів
-        ctx.font = '80px Arial';
+    scoreImg.src = '/static/assets/icons/rocket.png';
+    tokensImg.src = '/stati/assets/icons/coin.png';
+
+    Promise.all([
+        new Promise(resolve => scoreImg.onload = resolve),
+        new Promise(resolve => tokensImg.onload = resolve)
+    ]).then(() => {
+        ctx.font = '60px Arial';
         ctx.fillStyle = 'white';
-        ctx.textAlign = 'center'; 
-        ctx.textBaseline = 'middle'; // Вирівнювання тексту по центру зображення
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
 
-        // Визначте центр
         const centerX = canvas.width / 2;
+        const imageY = 20;
+        const imageHeight = 80;
 
-        // Малюйте зображення
-        const imageY = 20; // Вершина першого зображення
-        const imageHeight = 80; // Висота зображення
-
-        // Налаштування тіні для тексту
         ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 3;
-        ctx.shadowBlur = 5;
+        ctx.shadowBlur = 10;
 
-    
+        const spacing = 150;
 
-        // Малюйте зображення для score
-        ctx.drawImage(scoreImg, centerX - 140, imageY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-        ctx.fillText(`${Math.floor(score)}`, centerX, imageY + imageHeight / 2); // Текст буде поруч з зображенням
+        ctx.drawImage(scoreImg, centerX - 190, imageY, imageHeight, imageHeight);
+        ctx.fillText(`${Math.floor(score)}`, centerX - 190 + imageHeight + spacing / 2, imageY + imageHeight / 2);
 
-        // Малюйте зображення для tokens
-        const tokensY = 120; // Вершина другого зображення
-        ctx.drawImage(tokensImg, centerX - 140, tokensY, 80, 80); // Зображення буде розміщене ліворуч від тексту
-        ctx.fillText(`${tokens}`, centerX, tokensY + imageHeight / 2); // Текст буде поруч з зображенням
+        ctx.drawImage(tokensImg, centerX - 190 + imageHeight + spacing, imageY, imageHeight, imageHeight);
+        ctx.fillText(`${tokens}`, centerX - 190 + imageHeight + spacing + imageHeight + spacing / 2, imageY + imageHeight / 2);
 
-        // Прибрати тіні після малювання
         ctx.shadowColor = 'transparent';
-    };
-};
-
+    });
 }
 
-// Function to check collision
-function checkCollision(zombieX, zombieY, obstacleX, obstacleY) {
+function checkCollision(zombieX, zombieY, obstacleX, obstacleY, obstacleWidth, obstacleHeight) {
     return (
         zombieX < obstacleX + obstacleWidth &&
         zombieX + zombieWidth > obstacleX &&
@@ -255,103 +284,118 @@ function checkCollision(zombieX, zombieY, obstacleX, obstacleY) {
     );
 }
 
-// Function to reset the game
 function resetGame() {
     zombieX = 50;
-    zombieY = groundY - zombieHeight - 170;
+    zombieY = groundY - zombieHeight - 150;
     zombieSpeedY = 0;
     obstacles = [];
+    ghostObstacles = [];
+    ghostActive = false;
     score = 0;
-    tokens = 0; // Reset tokens
-    obstacleSpeed = initialObstacleSpeed; // Reset speed
+    tokens = 0;
+    obstacleSpeed = initialObstacleSpeed;
+    gameOver = false;
+    gameStarted = false;
+    lastObstacleSpawnTime = Date.now();
+    lastGhostSpawnTime = Date.now();
 }
 
-// Main game loop
-function gameLoop() {
-    update();
-    draw();
+function spawnObstacle() {
+    const imgIndex = Math.floor(Math.random() * numObstacleImages);
+    const x = canvasWidth;
+    obstacles.push({ x, imgIndex });
 }
 
-// Add event listener for key press
-window.addEventListener("click", () => {
-    if (!isJumping) {
-        zombieSpeedY = jumpPower;
-        isJumping = true;
-        tokens += 1 + Math.floor(score / 400); // Increase tokens based on score
+function spawnGhost() {
+    const x = canvasWidth;
+    const y = groundY - ghostHeight - 170;
+    ghostObstacles.push({ x, y, frameIndex: 0, frameCount: 0, isHit: false });
+}
+
+function spawnEntities() {
+    const now = Date.now();
+    let IntervalIndex = Math.floor((Math.random() * 2200) + 1750);
+    const obstacleSpawnInterval = IntervalIndex; 
+    if (now - lastObstacleSpawnTime > obstacleSpawnInterval) {
+        if (score > ghostScore) {
+            if (Math.random() > spawnSensitivity) {
+                spawnGhost();
+            } else {
+                spawnObstacle();
+            }
+            lastObstacleSpawnTime = now;
+        } else {
+            spawnObstacle();
+            lastObstacleSpawnTime = now;
+        }
     }
-    isAttacking = true; // Set attacking state
+}
+
+function gameOverScreen() {
+    ctx.font = '80px Arial';
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Game Over', canvasWidth / 2, canvasHeight / 2 - 50);
+    ctx.font = '80px Arial';
+    ctx.fillText(`Score: ${Math.floor(score)}`, canvasWidth / 2, canvasHeight / 2 + 50);
     setTimeout(() => {
-        isAttacking = false; // Reset attacking state after a short duration
-    }, 500); // Attack duration
-});
+        window.location.href = "/";
+    }, 3000);
+    console.log(tokens);
+}
+
+function restartGame() {
+    window.removeEventListener('click', restartGame);
+    resetGame();
+    startGame();
+}
+
+function startGame() {
+    loadImages([backgroundImage, groundImage, ...obstacleImages, ...ghostImages, ...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages])
+        .then(() => {
+            gameStarted = true;
+            window.addEventListener('click', restartGame);
+            setInterval(gameLoop, 1000 / 60);
+        })
+        .catch(error => {
+            console.error('Error loading images:', error);
+        });
+}
+
+function gameLoop() {
+    if (!gameOver) {
+        update();
+        draw();
+    } else {
+        gameOverScreen();
+    }
+}
+
+startGame();
 
 document.addEventListener('keydown', (event) => {
     if ((event.key === 'ArrowUp' || event.key === ' ') && !isJumping) {
         zombieSpeedY = jumpPower;
         isJumping = true;
-        tokens += 1 + Math.floor(score / 400); // Increase tokens based on score
+        tokens += 1 + Math.floor(score / 400);
     }
-    if (event.key === 'a') { // Assuming 'a' is for attack
-        isAttacking = true; // Set attacking state
+    if (event.key === 'a') {
+        isAttacking = true;
         setTimeout(() => {
-            isAttacking = false; // Reset attacking state after a short duration
-        }, 500); // Attack duration
+            isAttacking = false;
+        }, 500);
     }
 });
 
-// Generate obstacles at intervals
-setInterval(() => {
-    if (gameStarted) {
-        obstacles.push({
-            x: canvasWidth,
-            y: groundY - obstacleHeight,
-            imgIndex: 0 // Use the single obstacle image
-        });
+window.addEventListener('touchend', () => {
+    let currentTime = new Date().getTime();
+    let tapLength = currentTime - lastTap;
+    if (tapLength < 600 && tapLength > 0) {
+        isAttacking = true;
+        setTimeout(() => {
+            isAttacking = false;
+        }, 500);
     }
-}, 3000); // Interval remains the same at 3000ms (3 seconds)
-
-// Function to draw idle screen
-function drawIdleScreen() {
-    frameCount++;
-    if (frameCount >= frameSpeed) {
-        frameCount = 0;
-        currentFrame = (currentFrame + 1) % zombieIdleImages.length;
-    }
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    drawBackground();
-    ctx.drawImage(zombieIdleImages[currentFrame], zombieX, zombieY, zombieWidth, zombieHeight);
-    ctx.drawImage(playButtonImage, canvasWidth / 2 - 100, canvasHeight / 2 - 50, 200, 100); // Adjust button size and position
-}
-
-// Function to start the game
-function startGame() {
-    gameStarted = true;
-    gameIdle = false;
-    setInterval(gameLoop, 1000 / 60);
-}
-
-// Add event listener for play button
-canvas.addEventListener('click', (event) => {
-    if (gameIdle) {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        // Check if play button is clicked
-        if (x >= canvasWidth / 2 - 100 && x <= canvasWidth / 2 + 100 &&
-            y >= canvasHeight / 2 - 50 && y <= canvasHeight / 2 + 50) {
-            startGame();
-        }
-    }
+    lastTap = currentTime;
 });
-
-// Start idle animation loop
-loadImages([...zombieRunImages, ...zombieJumpImages, ...zombieIdleImages, ...zombieAttackImages, backgroundImage, groundImage, obstacleImages[0], playButtonImage], () => {
-    setInterval(() => {
-        if (gameIdle) {
-            drawIdleScreen();
-        }
-    }, 1000 / 60);
-});
-
-startGame();

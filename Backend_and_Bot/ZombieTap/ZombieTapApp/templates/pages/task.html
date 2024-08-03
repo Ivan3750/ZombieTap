@@ -1,4 +1,6 @@
 {% load static %}
+{% load humanize %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,7 +33,7 @@
   <main>
     <div class="main">
       <div class="score">
-        <p>{{ zb_coin }}</p>
+        <p>{{ zb_coin|intcomma }}</p>
         <img class="coin" src="{% static 'assets/icons/coin.png' %}" alt="">
       </div>
       <div class="task-block">

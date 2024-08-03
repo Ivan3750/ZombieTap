@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -58,26 +59,31 @@
       }
       return cookieValue;
     }
-
   </script>
 </head>
+
+<div class="mask">
+  <div class="loader loader-2"></div>
+</div>
 
 <body>
   <main>
     <div class="main">
       <div class="score">
         <img class="coin" src="{% static 'assets/icons/coin.png' %}" alt="Coin">
-        <p>{{ zb_coin }}</p>
+        <p>{{ zb_coin|intcomma }}</p>
+      </div>
+      <div class="hearts">
+        <img class="heart" src="{% static 'assets/icons/heart.png' %}" alt="Heart">
+        <p class="heart-amount">{{ hurt }}</p>
       </div>
       <div class="rank">777,777th</div>
-
       <img class="avatar" src="{% static 'assets/sprites/1/Idle1(1).png' %}" alt="Avatar">
-
       <div class="name">John Park</div>
-      <a href="{% url 'game' %}">
-        <button class="play-btn">Play</button>
-      </a>
+      <button class="play-btn">Play</button>
     </div>
+
+
     <div class="controls">
       <a href="{% url 'boost' %}">
         <div class="tab">
@@ -112,6 +118,7 @@
     </div>
   </main>
   <script src="{% static 'scripts/index.js' %}"></script>
+  <script src="{% static 'scripts/normalize.js' %}"></script>
 </body>
 
 </html>

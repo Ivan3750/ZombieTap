@@ -3,6 +3,9 @@ body{
 }
 
 .upgrade-block {
+    height: max-content;
+    max-height: 100%;
+    overflow-y: scroll;
     padding: 5px 0;
     display: flex;
     flex-direction: column;

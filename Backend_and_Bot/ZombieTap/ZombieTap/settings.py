@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['immensely-frank-stingray.ngrok-free.app', '127.0.0.1', 'localh
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.humanize',
     'ZombieTapApp',
     'corsheaders',
     'django_extensions',
